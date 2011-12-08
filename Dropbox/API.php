@@ -94,16 +94,21 @@ class API
 	
 	/**
 	 * Downloads a file
-	 * This method returns the raw file data only
+	 * This method returns the raw file data and mime type returned by Fileinfo
 	 * @param string $file Path to file, relative to root, including path
-	 * @return string Contents of downloaded file
+	 * @return array
 	 */
 	public function getFile($file)
 	{
 		$call = 'files/' . $this->root . '/' . ltrim($file, '/');
 		$params = array('filename' => basename($file));
 		$response = $this->OAuth->fetch('GET', self::CONTENT_URL, $call, $params);
-		return $response;
+		
+		// Get the mime type of the downloaded file
+		$finfo = new \finfo(FILEINFO_MIME);
+		$mime = $finfo->buffer($response);
+
+		return array('mime' => $mime, 'data' => $response);
 	}
 	
 	/**
