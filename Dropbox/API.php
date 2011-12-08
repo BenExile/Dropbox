@@ -196,7 +196,7 @@ class API
 	 */
 	public function media($path)
 	{
-		$call = 'shares/' . $this->root . '/' . ltrim($path, '/');
+		$call = 'media/' . $this->root . '/' . ltrim($path, '/');
 		$response = $this->OAuth->fetch('POST', self::API_URL, $call);
 		return $response;
 	}
