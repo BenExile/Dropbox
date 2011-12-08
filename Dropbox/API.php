@@ -69,6 +69,7 @@ class API
 	 * exceeds this limit or does not exist, an Exception will be thrown
 	 * @param string $file Absolute path to the file to be uploaded
 	 * @param string $path Path to upload the file to, relative to root
+	 * @param boolean $overwrite Should the file be overwritten?
 	 * @return object stdClass
 	 */
 	public function putFile($file, $path = '', $overwrite = true)
@@ -107,6 +108,7 @@ class API
 	
 	/**
 	 * Retrieves file and folder metadata
+	 * @param string $path The path to the file/folder, relative to root
 	 * @return object stdClass
 	 */
 	public function metaData($path = null)
