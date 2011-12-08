@@ -88,7 +88,7 @@ abstract class ConsumerAbstract
 		}
 	
 		// Build the first part of the string
-		$base = $method . '&' . urlencode($url . $call) . '&';
+		$base = $method . '&' . $this->encode($url . $call) . '&';
 		
 		// Re-encode the encoded parameter string and append to $base
 		$base .= $this->encode(implode('&', $encoded));
