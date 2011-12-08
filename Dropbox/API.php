@@ -119,6 +119,56 @@ class API
 	}
 	
 	/**
+	 * Obtains metadata for the previous revisions of a file
+	 * @param string Path to the file, relative to root
+	 * @param integer Number of revisions to return (1-1000)
+	 * @return array
+	 */
+	public function revisions($file, $limit = 10)
+	{
+		$call = 'revisions/' . $this->root . '/' . ltrim($file, '/');
+		$params = array(
+			'rev_limit' => ($limit < 1) ? 1 : (($limit > 1000) ? 1000 : (int) $limit),
+		);
+		$response = $this->OAuth->fetch('GET', self::API_URL, $call, $params);
+		return $response;
+	}
+	
+	/**
+	 * Restores a file path to a previous revision
+	 * @param string $file Path to the file, relative to root
+	 * @param string $revision The revision of the file to restore
+	 * @return object stdClass
+	 */
+	public function restore($file, $revision)
+	{
+		$call = 'restore/' . $this->root . '/' . ltrim($file, '/');
+		$params = array('rev' => $revision);
+		$response = $this->OAuth->fetch('POST', self::API_URL, $call, $params);
+		return $response;
+	}
+	
+	/**
+	 * Returns metadata for all files and folders that match the search query
+	 * @param mixed $query The search string. Must be at least 3 characters long
+	 * @param string $path The path to the folder you want to search in
+	 * @param integer $limit Maximum number of results to return (1-1000)
+	 * @param boolean $deleted Include deleted files/folders in the search
+	 * @return array
+	 */
+	public function search($query, $path = '', $limit = 1000, $deleted = false)
+	{
+		$call = 'search/' . $this->root . '/' . ltrim($path, '/');
+		$params = array(
+			'query' => $query,
+			'file_limit' => ($limit < 1) ? 1 : (($limit > 1000) ? 1000 : (int) $limit),
+			'include_deleted' => (int) $deleted,
+		);
+		$response = $this->OAuth->fetch('GET', self::API_URL, $call, $params);
+		return $response;
+	}
+	
+	/**
 	 * Creates and returns a shareable link to files or folders
 	 * @param string $path The path to the file/folder you want a sharable link to
 	 * @return object stdClass
