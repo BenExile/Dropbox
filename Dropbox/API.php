@@ -197,6 +197,13 @@ class API
 		return $response;
 	}
 	
+	/**
+	 * Gets a thumbnail for an image
+	 * @param string $file The path to the image you wish to thumbnail
+	 * @param string $format The thumbnail format, either JPEG or PNG
+	 * @param string $size The size of the thumbnail
+	 * @return array
+	 */
 	public function thumbnails($file, $format = 'JPEG', $size = 'small')
 	{
 		$format = strtoupper($format);
@@ -212,7 +219,6 @@ class API
 		$encoded = rawurlencode(ltrim($file, '/'));
 		$call = 'thumbnails/' . $this->root . '/' . $encoded;
 		$params = array('format' => $format, 'size' => $size);
-		var_dump($params);
 		$response = $this->OAuth->fetch('GET', self::CONTENT_URL, $call, $params);
 		
 		return array(
