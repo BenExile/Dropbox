@@ -104,13 +104,9 @@ class API
 		$params = array('rev' => $revision);
 		$response = $this->OAuth->fetch('GET', self::CONTENT_URL, $call, $params);
 		
-		// Get the mime type of the downloaded file
-		$finfo = new \finfo(FILEINFO_MIME);
-		$mime = $finfo->buffer($response);
-
 		return array(
 			'name' => basename($file),
-			'mime' => $mime,
+			'mime' => $this->getMimeType($response),
 			'data' => $response,
 		);
 	}
@@ -201,6 +197,31 @@ class API
 		return $response;
 	}
 	
+	public function thumbnails($file, $format = 'JPEG', $size = 'small')
+	{
+		$format = strtoupper($format);
+		// If $format is not 'PNG', default to 'JPEG'
+		if($format != 'PNG') $format = 'JPEG';
+		
+		$size = strtolower($size);
+		$sizes = array('s', 'm', 'l', 'xl', 'small', 'medium', 'large');
+		// If $size is not valid, default to 'small'
+		if(!in_array($size, $sizes)) $size = 'small';
+		
+		// Encode the filename for use in the signature base string
+		$encoded = rawurlencode(ltrim($file, '/'));
+		$call = 'thumbnails/' . $this->root . '/' . $encoded;
+		$params = array('format' => $format, 'size' => $size);
+		var_dump($params);
+		$response = $this->OAuth->fetch('GET', self::CONTENT_URL, $call, $params);
+		
+		return array(
+			'name' => basename($file),
+			'mime' => $this->getMimeType($response),
+			'data' => $response,
+		);
+	}
+	
 	/**
 	 * Copies a file or folder to a new location
 	 * @param string $from File or folder to be copied, relative to root
@@ -261,5 +282,16 @@ class API
 		);
 		$response = $this->OAuth->fetch('POST', self::API_URL, $call, $params);
 		return $response;
+	}
+	
+	/**
+	 * Get the mime type of downloaded file
+	 * @param string $data File contents as a string
+	 * @return string Mime type and encoding of the file
+	 */
+	private function getMimeType($data)
+	{
+		$finfo = new \finfo(FILEINFO_MIME);
+		return $finfo->buffer($data);
 	}
 }
