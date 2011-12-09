@@ -292,12 +292,16 @@ class API
 	
 	/**
 	 * Get the mime type of downloaded file
+	 * If the Fileinfo extension is not loaded, return false
 	 * @param string $data File contents as a string
-	 * @return string Mime type and encoding of the file
+	 * @return boolean|string Mime type and encoding of the file
 	 */
 	private function getMimeType($data)
 	{
-		$finfo = new \finfo(FILEINFO_MIME);
-		return $finfo->buffer($data);
+		if(extension_loaded('fileinfo')){
+			$finfo = new \finfo(FILEINFO_MIME);
+			return $finfo->buffer($data);
+		}
+		return false;
 	}
 }
