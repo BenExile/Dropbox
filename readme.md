@@ -12,6 +12,8 @@ This library conforms to the [PSR-0 standard][] for autoloading interoperability
 ### Example Usage
 
 ```php
+<?php
+
 // Requires won't be used in autoloading environment
 require_once('Dropbox/API.php');
 require_once('Dropbox/OAuth/Consumer/ConsumerAbstract.php');
