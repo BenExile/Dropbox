@@ -248,7 +248,7 @@ class API
 	
 	/**
 	 * Creates a folder
-	 * @param unknown_type New folder to create relative to root
+	 * @param string New folder to create relative to root
 	 * @return object stdClass
 	 */
 	public function create($path)
