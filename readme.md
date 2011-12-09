@@ -4,8 +4,6 @@ This is a PHP implementation of the [Dropbox REST API][].
 
 This library conforms to the [PSR-0 standard][] for autoloading interoperability and requires PHP >= 5.3.0.
 
-Please note that at present not all of the available API methods are implemented. These will be added shortly.
-
 ### Requirements
 
 * PHP >= 5.3.0
