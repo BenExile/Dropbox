@@ -100,7 +100,8 @@ class API
 	 */
 	public function getFile($file, $revision = null)
 	{
-		$call = 'files/' . $this->root . '/' . ltrim($file, '/');
+		$encoded = rawurlencode(ltrim($file, '/'));
+		$call = 'files/' . $this->root . '/' . $encoded;
 		$params = array('rev' => $revision);
 		$response = $this->OAuth->fetch('GET', self::CONTENT_URL, $call, $params);
 		
