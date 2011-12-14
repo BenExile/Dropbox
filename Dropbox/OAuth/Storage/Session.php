@@ -31,10 +31,10 @@ class Session implements StorageInterface
 	 * Get an OAuth token from the SESSION
 	 * @return array|bool
 	 */
-	public function get($key)
+	public function get()
 	{
-		if(isset($_SESSION[$this->namespace][$key])){
-			return $_SESSION[$this->namespace][$key];
+		if(isset($_SESSION[$this->namespace]['token'])){
+			return $_SESSION[$this->namespace]['token'];
 		}
 		return false;
 	}
@@ -43,8 +43,8 @@ class Session implements StorageInterface
 	 * Set an OAuth token in the SESSION
 	 * @return void
 	 */
-	public function set($key, $value)
+	public function set($token)
 	{
-		$_SESSION[$this->namespace][$key] = $value;
+		$_SESSION[$this->namespace]['token'] = $token;
 	}
 }
