@@ -5,6 +5,7 @@
  * @author Ben Tadiar <ben@handcraftedbyben.co.uk>
  * @link https://github.com/benthedesigner/dropbox
  * @link https://www.dropbox.com/developers
+ * @link https://status.dropbox.com Dropbox status
  * @package Dropbox
  */
 namespace Dropbox;
