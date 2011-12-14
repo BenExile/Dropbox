@@ -25,8 +25,9 @@ abstract class ConsumerAbstract
 	 */
 	protected function authenticate()
 	{
-		if(!$this->storage->get('access_token')){
-			if(!$this->storage->get('request_token')){
+		if((!$token = $this->storage->get()) || !isset($token->uid)){
+			if(!isset($_GET['uid'], $_GET['oauth_token'])){
+				$this->storage->set(null);
 				$this->getRequestToken();
 				$this->authorise($this->callback);
 			} else {
@@ -44,12 +45,10 @@ abstract class ConsumerAbstract
 	 */
 	protected function getToken()
 	{
-		if(!$token = $this->storage->get('access_token')){
-			if(!$token = $this->storage->get('request_token')){
-				$token = new \stdClass();
-				$token->oauth_token = null;
-				$token->oauth_token_secret = null;
-			}
+		if(!$token = $this->storage->get()){
+			$token = new \stdClass();
+			$token->oauth_token = null;
+			$token->oauth_token_secret = null;
 		}
 		return $token;
 	}

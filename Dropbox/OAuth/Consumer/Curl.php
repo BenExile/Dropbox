@@ -56,7 +56,7 @@ class Curl extends ConsumerAbstract
 		$url = API::API_URL . self::REQUEST_TOKEN_METHOD;
 		$response = $this->fetch('POST', $url, '');
 		$token = $this->parseTokenString($response);
-		$this->storage->set('request_token', $token);
+		$this->storage->set($token);
 	}
 	
 	/**
@@ -95,7 +95,7 @@ class Curl extends ConsumerAbstract
 		// Get the signed request URL
 		$response = $this->fetch('POST', API::API_URL, self::ACCESS_TOKEN_METHOD);
 		$token = $this->parseTokenString($response);
-		$this->storage->set('access_token', $token);
+		$this->storage->set($token);
 	}
 
 	/**
