@@ -69,7 +69,7 @@ abstract class ConsumerAbstract
 			'oauth_token' => $token->oauth_token,
 			'oauth_signature_method' => 'HMAC-SHA1',
 			'oauth_timestamp' => time(),
-			'oauth_nonce' => md5(microtime(true)),
+			'oauth_nonce' => md5(microtime(true) . uniqid('', true)),
 			'oauth_version' => '1.0'
 		);
 	
