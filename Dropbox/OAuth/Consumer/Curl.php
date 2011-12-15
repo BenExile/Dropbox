@@ -48,7 +48,7 @@ class Curl extends ConsumerAbstract
 	
 	/**
 	 * Acquire an unauthorised request token
-	 * @link http://oauth.net/core/1.0/#auth_step1
+	 * @link http://tools.ietf.org/html/rfc5849#section-2.1
 	 * @return void
 	 */
 	protected function getRequestToken()
@@ -62,7 +62,7 @@ class Curl extends ConsumerAbstract
 	/**
 	 * Obtain user authorisation
 	 * The user will be redirected to Dropbox' web endpoint
-	 * @link http://oauth.net/core/1.0/#auth_step2
+	 * @link http://tools.ietf.org/html/rfc5849#section-2.2
 	 * @return void
 	 */
 	protected function authorise($callbackUrl = null)
@@ -88,7 +88,7 @@ class Curl extends ConsumerAbstract
 	 * Acquire an access token
 	 * Tokens acquired at this point should be stored to
 	 * prevent having to request new tokens for each API call
-	 * @link http://oauth.net/core/1.0/#auth_step3
+	 * @link http://tools.ietf.org/html/rfc5849#section-2.3
 	 */
 	protected function getAccessToken()
 	{

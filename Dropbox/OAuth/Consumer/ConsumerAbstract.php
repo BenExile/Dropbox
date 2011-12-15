@@ -56,7 +56,7 @@ abstract class ConsumerAbstract
 	/**
 	 * Generate signed request URL
 	 * See inline comments for description
-	 * @link http://oauth.net/core/1.0/#signing_process
+	 * @link http://tools.ietf.org/html/rfc5849#section-3.4
 	 */
 	protected function getSignedRequest($method, $url, $call, array $additional = array())
 	{
@@ -109,8 +109,8 @@ abstract class ConsumerAbstract
 	 * This is a convenience method to decode ~ symbols encoded
 	 * by rawurldecode. This will encode all characters except
 	 * the unreserved set, ALPHA, DIGIT, '-', '.', '_', '~'
-	 * @link http://oauth.net/core/1.0/#encoding_parameters
-	 * @param unknown_type $value
+	 * @link http://tools.ietf.org/html/rfc5849#section-3.6
+	 * @param mixed $value
 	 */
 	private function encode($value)
 	{
