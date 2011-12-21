@@ -101,8 +101,10 @@ class API
 	 */
 	public function getFile($file, $revision = null)
 	{
-		$path = str_replace(' ', '%20', ltrim($file, '/'));
-		$call = 'files/' . $this->root . '/' . $path;
+		// rawurlencode the filename, then replace %2F with / for use in URL
+		$encoded = str_replace('%2F', '/', rawurlencode(ltrim($file, '/')));
+		
+		$call = 'files/' . $this->root . '/' . $encoded;
 		$params = array('rev' => $revision);
 		$response = $this->OAuth->fetch('GET', self::CONTENT_URL, $call, $params);
 		
