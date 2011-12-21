@@ -19,6 +19,12 @@ abstract class ConsumerAbstract
 	const ACCESS_TOKEN_METHOD = 'oauth/access_token';
 	
 	/**
+	 * Signature method
+	 * @var string
+	 */
+	private $signatureMethod = 'HMAC-SHA1';
+	
+	/**
 	 * Authenticate using 3-legged OAuth flow, firstly
 	 * checking we don't already have tokens to use
 	 * @todo This needs work...
@@ -67,7 +73,7 @@ abstract class ConsumerAbstract
 		$params = array(
 			'oauth_consumer_key' => $this->consumerKey,
 			'oauth_token' => $token->oauth_token,
-			'oauth_signature_method' => 'HMAC-SHA1',
+			'oauth_signature_method' => $this->signatureMethod,
 			'oauth_timestamp' => time(),
 			'oauth_nonce' => md5(microtime(true) . uniqid('', true)),
 			'oauth_version' => '1.0'
@@ -92,16 +98,53 @@ abstract class ConsumerAbstract
 		// Re-encode the encoded parameter string and append to $base
 		$base .= $this->encode(implode('&', $encoded));
 
-		// Build the secret key used for generating the HMAC digest
+		// Concatenate the secrets with an ampersand
 		$key = $this->consumerSecret . '&' . $token->oauth_token_secret;
 		
-		// Generate a base64 encoded, keyed hash
-		$signature = base64_encode(hash_hmac('sha1', $base, $key, true));
+		// Get the signature string based on signature method
+		$signature = $this->getSignature($base, $key);
 		$params['oauth_signature'] = $signature;
-	
+		
 		// Build the signed request URL
 		$query = '?' . http_build_query($params);
 		return $url . $call . $query;
+	}
+	
+	/**
+	 * Generate the oauth_signature for a request
+	 * @param string $base Signature base string, used by HMAC-SHA1
+	 * @param string $key Concatenated consumer and token secrets
+	 */
+	private function getSignature($base, $key)
+	{
+		switch($this->signatureMethod){
+			case 'PLAINTEXT':
+				$signature = $key;
+				break;
+			case 'HMAC-SHA1':
+				$signature = base64_encode(hash_hmac('sha1', $base, $key, true));
+				break;
+		}
+		
+		return $signature;
+	}
+	
+	/**
+	 * Set the OAuth signature method
+	 * @param string $method Either PLAINTEXT or HMAC-SHA1
+	 * @return void
+	 */
+	public function setSignatureMethod($method)
+	{
+		$method = strtoupper($method);
+		switch($method){
+			case 'PLAINTEXT':
+			case 'HMAC-SHA1':
+				$this->signatureMethod = $method;
+				break;
+			default:
+				throw new \Exception('Unsupported signature method ' . $method);
+		}
 	}
 	
 	/**
