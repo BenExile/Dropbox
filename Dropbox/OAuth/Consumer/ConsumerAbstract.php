@@ -19,10 +19,10 @@ abstract class ConsumerAbstract
 	const ACCESS_TOKEN_METHOD = 'oauth/access_token';
 	
 	/**
-	 * Signature method
+	 * Signature method, either PLAINTEXT or HMAC-SHA1
 	 * @var string
 	 */
-	private $signatureMethod = 'HMAC-SHA1';
+	private $sigMethod = 'HMAC-SHA1';
 	
 	/**
 	 * Authenticate using 3-legged OAuth flow, firstly
@@ -69,14 +69,18 @@ abstract class ConsumerAbstract
 		// Get the request/access token
 		$token = $this->getToken();
 		
+		// Generate a random string for the request
+		$nonce = md5(microtime(true) . uniqid('', true));
+		
 		// Prepare the standard request parameters
 		$params = array(
 			'oauth_consumer_key' => $this->consumerKey,
 			'oauth_token' => $token->oauth_token,
-			'oauth_signature_method' => $this->signatureMethod,
-			'oauth_timestamp' => time(),
-			'oauth_nonce' => md5(microtime(true) . uniqid('', true)),
-			'oauth_version' => '1.0'
+			'oauth_signature_method' => $this->sigMethod,
+			'oauth_version' => '1.0',
+			// Generate nonce and timestamp if signature method is HMAC-SHA1 
+			'oauth_timestamp' => ($this->sigMethod == 'HMAC-SHA1') ? time() : null,
+			'oauth_nonce' => ($this->sigMethod == 'HMAC-SHA1') ? $nonce : null,
 		);
 	
 		// Merge with the additional request parameters
@@ -117,7 +121,7 @@ abstract class ConsumerAbstract
 	 */
 	private function getSignature($base, $key)
 	{
-		switch($this->signatureMethod){
+		switch($this->sigMethod){
 			case 'PLAINTEXT':
 				$signature = $key;
 				break;
@@ -140,7 +144,7 @@ abstract class ConsumerAbstract
 		switch($method){
 			case 'PLAINTEXT':
 			case 'HMAC-SHA1':
-				$this->signatureMethod = $method;
+				$this->sigMethod = $method;
 				break;
 			default:
 				throw new \Exception('Unsupported signature method ' . $method);
