@@ -91,7 +91,7 @@ abstract class ConsumerAbstract
 		$encoded = array();
 		foreach($params as $param => $value){
 			if($value !== null){
-				if($value[0] === '@') $value = substr($value, 1);
+				if($value[0] === '@') $value = $params['filename'];
 				$encoded[] = $this->encode($param) . '=' . $this->encode($value);
 			} else {
 				unset($params[$param]);
