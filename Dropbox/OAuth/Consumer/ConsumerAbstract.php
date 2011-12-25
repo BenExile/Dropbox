@@ -91,7 +91,7 @@ abstract class ConsumerAbstract
 		$encoded = array();
 		foreach($params as $param => $value){
 			if($value !== null){
-				if($value[0] === '@') $value = substr($value, 1);
+				if($value[0] === '@') $value = $params['filename'];
 				$encoded[] = $this->encode($param) . '=' . $this->encode($value);
 			} else {
 				unset($params[$param]);
@@ -103,7 +103,7 @@ abstract class ConsumerAbstract
 		
 		// Re-encode the encoded parameter string and append to $base
 		$base .= $this->encode(implode('&', $encoded));
-		
+		echo $base;
 		// Concatenate the secrets with an ampersand
 		$key = $this->consumerSecret . '&' . $token->oauth_token_secret;
 		

@@ -69,18 +69,20 @@ class API
 	 * Dropbox impose a 150MB limit to files uploaded via the API. If the file
 	 * exceeds this limit or does not exist, an Exception will be thrown
 	 * @param string $file Absolute path to the file to be uploaded
+	 * @param string|bool $filename The destination filename of the uploaded file
 	 * @param string $path Path to upload the file to, relative to root
 	 * @param boolean $overwrite Should the file be overwritten?
 	 * @return object stdClass
 	 */
-	public function putFile($file, $path = '', $overwrite = true)
+	public function putFile($file, $filename = false, $path = '', $overwrite = true)
 	{
 		if(file_exists($file)){
 			if(filesize($file) <= 157286400){
 				$call = 'files/' . $this->root . '/' . ltrim($path, '/');
+				$filename = (is_string($filename)) ? $filename : basename($file);
 				$params = array(
-					'filename' => basename($file),
-					'file' => '@' . str_replace('\\', '/', $file),
+					'filename' => $filename,
+					'file' => '@' . str_replace('\\', '/', $file) . ';filename=' . $filename,
 					'overwrite' => (int) $overwrite,
 				);
 				$response = $this->OAuth->fetch('POST', self::CONTENT_URL, $call, $params);
