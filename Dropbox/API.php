@@ -6,6 +6,7 @@
  * @link https://github.com/benthedesigner/dropbox
  * @link https://www.dropbox.com/developers
  * @link https://status.dropbox.com Dropbox status
+ * @todo Add Dropbox Exception classes
  * @package Dropbox
  */
 namespace Dropbox;
@@ -71,7 +72,7 @@ class API
 	 * @param string $file Absolute path to the file to be uploaded
 	 * @param string|bool $filename The destination filename of the uploaded file
 	 * @param string $path Path to upload the file to, relative to root
-	 * @param boolean $overwrite Should the file be overwritten?
+	 * @param boolean $overwrite Should the file be overwritten? (Default: true)
 	 * @return object stdClass
 	 */
 	public function putFile($file, $filename = false, $path = '', $overwrite = true)
@@ -79,6 +80,7 @@ class API
 		if(file_exists($file)){
 			if(filesize($file) <= 157286400){
 				$call = 'files/' . $this->root . '/' . ltrim($path, '/');
+				// If no filename is provided we'll use the original filename
 				$filename = (is_string($filename)) ? $filename : basename($file);
 				$params = array(
 					'filename' => $filename,
