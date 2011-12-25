@@ -118,21 +118,22 @@ class API
 	/**
 	 * Retrieves file and folder metadata
 	 * @param string $path The path to the file/folder, relative to root
+	 * @param string $rev Return metadata for a specific revision (Default: latest rev)
 	 * @param int $limit Maximum number of listings to return
 	 * @param string $hash Metadata hash to compare against
 	 * @param bool $list Return contents field with response
 	 * @param bool $deleted Include files/folders that have been deleted
-	 * @todo Add rev parameter - currently having issues if no rev is passed
 	 * @return object stdClass 
 	 */
-	public function metaData($path = null, $limit = 10000, $hash = false, $list = true, $deleted = false)
-	{
+	public function metaData($path = null, $rev = null, $limit = 10000, $hash = false, $list = true, $deleted = false
+	) {
 		$call = 'metadata/' . $this->root . '/' . ltrim($path, '/');
 		$params = array(
 			'file_limit' => ($limit < 1) ? 1 : (($limit > 10000) ? 10000 : (int) $limit),
 			'hash' => (is_string($hash)) ? $hash : 0,
 			'list' => (int) $list,
 			'include_deleted' => (int) $deleted,
+			'rev' => (is_string($rev)) ? $rev : null,
 		);
 		$response = $this->OAuth->fetch('POST', self::API_URL, $call, $params);
 		return $response;
