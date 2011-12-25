@@ -103,7 +103,7 @@ abstract class ConsumerAbstract
 		
 		// Re-encode the encoded parameter string and append to $base
 		$base .= $this->encode(implode('&', $encoded));
-		
+		echo $base;
 		// Concatenate the secrets with an ampersand
 		$key = $this->consumerSecret . '&' . $token->oauth_token_secret;
 		
