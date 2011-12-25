@@ -110,16 +110,16 @@ class Curl extends ConsumerAbstract
 	public function fetch($method, $url, $call = '', array $additional = array())
 	{
 		// Get the signed request URL
-		$url = $this->getSignedRequest($method, $url, $call, $additional);
+		$request = $this->getSignedRequest($method, $url, $call, $additional);
 		
 		// Initialise and execute a cURL request
-		$handle = curl_init($url);
+		$handle = curl_init($request['url']);
 		curl_setopt_array($handle, $this->options);
 		
 		// POST request specific
 		if($method == 'POST'){
 			curl_setopt($handle, CURLOPT_POST, true);
-			curl_setopt($handle, CURLOPT_POSTFIELDS, $additional);
+			curl_setopt($handle, CURLOPT_POSTFIELDS, $request['postfields']);
 		}
 		
 		// Execute and parse the response
