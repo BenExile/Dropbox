@@ -93,15 +93,17 @@ abstract class ConsumerAbstract
 			if($value !== null){
 				if($value[0] === '@') $value = substr($value, 1);
 				$encoded[] = $this->encode($param) . '=' . $this->encode($value);
+			} else {
+				unset($params[$param]);
 			}
 		}
-	
+		
 		// Build the first part of the string
 		$base = $method . '&' . $this->encode($url . $call) . '&';
 		
 		// Re-encode the encoded parameter string and append to $base
 		$base .= $this->encode(implode('&', $encoded));
-
+		
 		// Concatenate the secrets with an ampersand
 		$key = $this->consumerSecret . '&' . $token->oauth_token_secret;
 		
@@ -111,7 +113,10 @@ abstract class ConsumerAbstract
 		
 		// Build the signed request URL
 		$query = '?' . http_build_query($params);
-		return $url . $call . $query;
+		return array(
+			'url' => $url . $call . $query,
+			'postfields' => $params,
+		);
 	}
 	
 	/**
