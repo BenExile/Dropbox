@@ -79,7 +79,7 @@ class API
 	{
 		if(file_exists($file)){
 			if(filesize($file) <= 157286400){
-				$call = 'files/' . $this->root . '/' . trim($path, '/');
+				$call = 'files/' . $this->root . '/' . $this->normalisePath($path);
 				// If no filename is provided we'll use the original filename
 				$filename = (is_string($filename)) ? $filename : basename($file);
 				$params = array(
@@ -106,7 +106,8 @@ class API
 	public function getFile($file, $revision = null)
 	{
 		// rawurlencode the filename, then replace %2F with / for use in URL
-		$encoded = str_replace('%2F', '/', rawurlencode(trim($file, '/')));
+		$file = $this->normalisePath($file);
+		$encoded = str_replace('%2F', '/', rawurlencode($file));
 		
 		$call = 'files/' . $this->root . '/' . $encoded;
 		$params = array('rev' => $revision);
@@ -129,9 +130,9 @@ class API
 	 * @param bool $deleted Include files/folders that have been deleted
 	 * @return object stdClass 
 	 */
-	public function metaData($path = null, $rev = null, $limit = 10000, $hash = false, $list = true, $deleted = false
-	) {
-		$call = 'metadata/' . $this->root . '/' . trim($path, '/');
+	public function metaData($path = null, $rev = null, $limit = 10000, $hash = false, $list = true, $deleted = false)
+	{
+		$call = 'metadata/' . $this->root . '/' . $this->normalisePath($path);
 		$params = array(
 			'file_limit' => ($limit < 1) ? 1 : (($limit > 10000) ? 10000 : (int) $limit),
 			'hash' => (is_string($hash)) ? $hash : 0,
@@ -151,7 +152,7 @@ class API
 	 */
 	public function revisions($file, $limit = 10)
 	{
-		$call = 'revisions/' . $this->root . '/' . trim($file, '/');
+		$call = 'revisions/' . $this->root . '/' . $this->normalisePath($file);
 		$params = array(
 			'rev_limit' => ($limit < 1) ? 1 : (($limit > 1000) ? 1000 : (int) $limit),
 		);
@@ -167,7 +168,7 @@ class API
 	 */
 	public function restore($file, $revision)
 	{
-		$call = 'restore/' . $this->root . '/' . trim($file, '/');
+		$call = 'restore/' . $this->root . '/' . $this->normalisePath($file);
 		$params = array('rev' => $revision);
 		$response = $this->OAuth->fetch('POST', self::API_URL, $call, $params);
 		return $response;
@@ -183,7 +184,7 @@ class API
 	 */
 	public function search($query, $path = '', $limit = 1000, $deleted = false)
 	{
-		$call = 'search/' . $this->root . '/' . trim($path, '/');
+		$call = 'search/' . $this->root . '/' . $this->normalisePath($path);
 		$params = array(
 			'query' => $query,
 			'file_limit' => ($limit < 1) ? 1 : (($limit > 1000) ? 1000 : (int) $limit),
@@ -200,7 +201,7 @@ class API
 	 */
 	public function shares($path)
 	{
-		$call = 'shares/' . $this->root . '/' . trim($path, '/');
+		$call = 'shares/' . $this->root . '/' .$this->normalisePath($path);
 		$response = $this->OAuth->fetch('POST', self::API_URL, $call);
 		return $response;
 	}
@@ -212,7 +213,7 @@ class API
 	 */
 	public function media($path)
 	{
-		$call = 'media/' . $this->root . '/' . trim($path, '/');
+		$call = 'media/' . $this->root . '/' . $this->normalisePath($path);
 		$response = $this->OAuth->fetch('POST', self::API_URL, $call);
 		return $response;
 	}
@@ -236,7 +237,7 @@ class API
 		if(!in_array($size, $sizes)) $size = 'small';
 		
 		// Encode the filename for use in the signature base string
-		$encoded = rawurlencode(trim($file, '/'));
+		$encoded = rawurlencode($this->normalisePath($file));
 		$call = 'thumbnails/' . $this->root . '/' . $encoded;
 		$params = array('format' => $format, 'size' => $size);
 		$response = $this->OAuth->fetch('GET', self::CONTENT_URL, $call, $params);
@@ -259,8 +260,8 @@ class API
 		$call = 'fileops/copy';
 		$params = array(
 			'root' => $this->root,
-			'from_path' => trim($from, '/'),
-			'to_path' => trim($to, '/'),
+			'from_path' => $this->normalisePath($from),
+			'to_path' => $this->normalisePath($to),
 		);
 		$response = $this->OAuth->fetch('POST', self::API_URL, $call, $params);
 		return $response;
@@ -274,7 +275,7 @@ class API
 	public function create($path)
 	{
 		$call = 'fileops/create_folder';
-		$params = array('root' => $this->root, 'path' => trim($path, '/'));
+		$params = array('root' => $this->root, 'path' => $this->normalisePath($path));
 		$response = $this->OAuth->fetch('POST', self::API_URL, $call, $params);
 		return $response;
 	}
@@ -287,7 +288,7 @@ class API
 	public function delete($path)
 	{
 		$call = 'fileops/delete';
-		$params = array('root' => $this->root, 'path' => trim($path, '/'));
+		$params = array('root' => $this->root, 'path' => $this->normalisePath($path));
 		$response = $this->OAuth->fetch('POST', self::API_URL, $call, $params);
 		return $response;
 	}
@@ -303,8 +304,8 @@ class API
 		$call = 'fileops/move';
 		$params = array(
 				'root' => $this->root,
-				'from_path' => trim($from, '/'),
-				'to_path' => trim($to, '/'),
+				'from_path' => $this->normalisePath($from),
+				'to_path' => $this->normalisePath($to),
 		);
 		$response = $this->OAuth->fetch('POST', self::API_URL, $call, $params);
 		return $response;
@@ -323,5 +324,17 @@ class API
 			return $finfo->buffer($data);
 		}
 		return false;
+	}
+	
+	/**
+	 * Trim the path of forward slashes and replace
+	 * consecutive forward slashes with a single slash
+	 * @param string $path The path to normalise
+	 * @return string
+	 */
+	private function normalisePath($path)
+	{
+		$path = preg_replace('#/+#', '/', trim($path, '/'));
+		return $path;
 	}
 }
