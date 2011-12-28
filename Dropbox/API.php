@@ -79,7 +79,7 @@ class API
 	{
 		if(file_exists($file)){
 			if(filesize($file) <= 157286400){
-				$call = 'files/' . $this->root . '/' . ltrim($path, '/');
+				$call = 'files/' . $this->root . '/' . trim($path, '/');
 				// If no filename is provided we'll use the original filename
 				$filename = (is_string($filename)) ? $filename : basename($file);
 				$params = array(
@@ -106,7 +106,7 @@ class API
 	public function getFile($file, $revision = null)
 	{
 		// rawurlencode the filename, then replace %2F with / for use in URL
-		$encoded = str_replace('%2F', '/', rawurlencode(ltrim($file, '/')));
+		$encoded = str_replace('%2F', '/', rawurlencode(trim($file, '/')));
 		
 		$call = 'files/' . $this->root . '/' . $encoded;
 		$params = array('rev' => $revision);
@@ -131,7 +131,7 @@ class API
 	 */
 	public function metaData($path = null, $rev = null, $limit = 10000, $hash = false, $list = true, $deleted = false
 	) {
-		$call = 'metadata/' . $this->root . '/' . ltrim($path, '/');
+		$call = 'metadata/' . $this->root . '/' . trim($path, '/');
 		$params = array(
 			'file_limit' => ($limit < 1) ? 1 : (($limit > 10000) ? 10000 : (int) $limit),
 			'hash' => (is_string($hash)) ? $hash : 0,
@@ -151,7 +151,7 @@ class API
 	 */
 	public function revisions($file, $limit = 10)
 	{
-		$call = 'revisions/' . $this->root . '/' . ltrim($file, '/');
+		$call = 'revisions/' . $this->root . '/' . trim($file, '/');
 		$params = array(
 			'rev_limit' => ($limit < 1) ? 1 : (($limit > 1000) ? 1000 : (int) $limit),
 		);
@@ -167,7 +167,7 @@ class API
 	 */
 	public function restore($file, $revision)
 	{
-		$call = 'restore/' . $this->root . '/' . ltrim($file, '/');
+		$call = 'restore/' . $this->root . '/' . trim($file, '/');
 		$params = array('rev' => $revision);
 		$response = $this->OAuth->fetch('POST', self::API_URL, $call, $params);
 		return $response;
@@ -183,7 +183,7 @@ class API
 	 */
 	public function search($query, $path = '', $limit = 1000, $deleted = false)
 	{
-		$call = 'search/' . $this->root . '/' . ltrim($path, '/');
+		$call = 'search/' . $this->root . '/' . trim($path, '/');
 		$params = array(
 			'query' => $query,
 			'file_limit' => ($limit < 1) ? 1 : (($limit > 1000) ? 1000 : (int) $limit),
@@ -200,7 +200,7 @@ class API
 	 */
 	public function shares($path)
 	{
-		$call = 'shares/' . $this->root . '/' . ltrim($path, '/');
+		$call = 'shares/' . $this->root . '/' . trim($path, '/');
 		$response = $this->OAuth->fetch('POST', self::API_URL, $call);
 		return $response;
 	}
@@ -212,7 +212,7 @@ class API
 	 */
 	public function media($path)
 	{
-		$call = 'media/' . $this->root . '/' . ltrim($path, '/');
+		$call = 'media/' . $this->root . '/' . trim($path, '/');
 		$response = $this->OAuth->fetch('POST', self::API_URL, $call);
 		return $response;
 	}
@@ -236,7 +236,7 @@ class API
 		if(!in_array($size, $sizes)) $size = 'small';
 		
 		// Encode the filename for use in the signature base string
-		$encoded = rawurlencode(ltrim($file, '/'));
+		$encoded = rawurlencode(trim($file, '/'));
 		$call = 'thumbnails/' . $this->root . '/' . $encoded;
 		$params = array('format' => $format, 'size' => $size);
 		$response = $this->OAuth->fetch('GET', self::CONTENT_URL, $call, $params);
@@ -259,8 +259,8 @@ class API
 		$call = 'fileops/copy';
 		$params = array(
 			'root' => $this->root,
-			'from_path' => ltrim($from, '/'),
-			'to_path' => ltrim($to, '/'),
+			'from_path' => trim($from, '/'),
+			'to_path' => trim($to, '/'),
 		);
 		$response = $this->OAuth->fetch('POST', self::API_URL, $call, $params);
 		return $response;
@@ -274,7 +274,7 @@ class API
 	public function create($path)
 	{
 		$call = 'fileops/create_folder';
-		$params = array('root' => $this->root, 'path' => ltrim($path, '/'));
+		$params = array('root' => $this->root, 'path' => trim($path, '/'));
 		$response = $this->OAuth->fetch('POST', self::API_URL, $call, $params);
 		return $response;
 	}
@@ -287,7 +287,7 @@ class API
 	public function delete($path)
 	{
 		$call = 'fileops/delete';
-		$params = array('root' => $this->root, 'path' => ltrim($path, '/'));
+		$params = array('root' => $this->root, 'path' => trim($path, '/'));
 		$response = $this->OAuth->fetch('POST', self::API_URL, $call, $params);
 		return $response;
 	}
@@ -303,8 +303,8 @@ class API
 		$call = 'fileops/move';
 		$params = array(
 				'root' => $this->root,
-				'from_path' => ltrim($from, '/'),
-				'to_path' => ltrim($to, '/'),
+				'from_path' => trim($from, '/'),
+				'to_path' => trim($to, '/'),
 		);
 		$response = $this->OAuth->fetch('POST', self::API_URL, $call, $params);
 		return $response;
