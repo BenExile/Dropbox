@@ -78,7 +78,7 @@ class Curl extends ConsumerAbstract
 		);
 		
 		// Build the URL and redirect the user
-		$query = '?' . http_build_query($params);
+		$query = '?' . http_build_query($params, '', '&');
 		$url = self::WEB_URL . self::AUTHORISE_METHOD . $query;
 		header('Location: ' . $url);
 		exit;
