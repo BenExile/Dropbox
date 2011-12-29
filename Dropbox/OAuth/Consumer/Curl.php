@@ -124,6 +124,7 @@ class Curl extends ConsumerAbstract
 		
 		// Execute and parse the response
 		$raw = curl_exec($handle);
+		var_dump($raw);
 		curl_close($handle);
 		$response = $this->parse($raw);
 		
