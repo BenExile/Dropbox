@@ -62,7 +62,7 @@ class API
 	public function accountInfo()
 	{
 		$response = $this->OAuth->fetch('POST', self::API_URL, 'account/info');
-		return $response;
+		return $response['body'];
 	}
 	
 	/**
@@ -88,7 +88,7 @@ class API
 					'overwrite' => (int) $overwrite,
 				);
 				$response = $this->OAuth->fetch('POST', self::CONTENT_URL, $call, $params);
-				return $response;
+				return $response['body'];
 			}
 			throw new \Exception('File exceeds 150MB upload limit');
 		}
@@ -115,8 +115,9 @@ class API
 		
 		return array(
 			'name' => basename($file),
-			'mime' => $this->getMimeType($response),
-			'data' => $response,
+			'mime' => $this->getMimeType($response['body']),
+			'meta' => null, // Will update to use x-dropbox-metadata header
+			'data' => $response['body'],
 		);
 	}
 	
@@ -141,7 +142,7 @@ class API
 			'rev' => (is_string($rev)) ? $rev : null,
 		);
 		$response = $this->OAuth->fetch('POST', self::API_URL, $call, $params);
-		return $response;
+		return $response['body'];
 	}
 	
 	/**
@@ -157,7 +158,7 @@ class API
 			'rev_limit' => ($limit < 1) ? 1 : (($limit > 1000) ? 1000 : (int) $limit),
 		);
 		$response = $this->OAuth->fetch('GET', self::API_URL, $call, $params);
-		return $response;
+		return $response['body'];
 	}
 	
 	/**
@@ -171,7 +172,7 @@ class API
 		$call = 'restore/' . $this->root . '/' . $this->normalisePath($file);
 		$params = array('rev' => $revision);
 		$response = $this->OAuth->fetch('POST', self::API_URL, $call, $params);
-		return $response;
+		return $response['body'];
 	}
 	
 	/**
@@ -191,7 +192,7 @@ class API
 			'include_deleted' => (int) $deleted,
 		);
 		$response = $this->OAuth->fetch('GET', self::API_URL, $call, $params);
-		return $response;
+		return $response['body'];
 	}
 	
 	/**
@@ -203,7 +204,7 @@ class API
 	{
 		$call = 'shares/' . $this->root . '/' .$this->normalisePath($path);
 		$response = $this->OAuth->fetch('POST', self::API_URL, $call);
-		return $response;
+		return $response['body'];
 	}
 	
 	/**
@@ -215,7 +216,7 @@ class API
 	{
 		$call = 'media/' . $this->root . '/' . $this->normalisePath($path);
 		$response = $this->OAuth->fetch('POST', self::API_URL, $call);
-		return $response;
+		return $response['body'];
 	}
 	
 	/**
@@ -244,8 +245,8 @@ class API
 		
 		return array(
 			'name' => basename($file),
-			'mime' => $this->getMimeType($response),
-			'data' => $response,
+			'mime' => $this->getMimeType($response['body']),
+			'data' => $response['body'],
 		);
 	}
 	
@@ -264,7 +265,7 @@ class API
 			'to_path' => $this->normalisePath($to),
 		);
 		$response = $this->OAuth->fetch('POST', self::API_URL, $call, $params);
-		return $response;
+		return $response['body'];
 	}
 	
 	/**
@@ -277,7 +278,7 @@ class API
 		$call = 'fileops/create_folder';
 		$params = array('root' => $this->root, 'path' => $this->normalisePath($path));
 		$response = $this->OAuth->fetch('POST', self::API_URL, $call, $params);
-		return $response;
+		return $response['body'];
 	}
 	
 	/**
@@ -290,7 +291,7 @@ class API
 		$call = 'fileops/delete';
 		$params = array('root' => $this->root, 'path' => $this->normalisePath($path));
 		$response = $this->OAuth->fetch('POST', self::API_URL, $call, $params);
-		return $response;
+		return $response['body'];
 	}
 	
 	/**
@@ -308,7 +309,7 @@ class API
 				'to_path' => $this->normalisePath($to),
 		);
 		$response = $this->OAuth->fetch('POST', self::API_URL, $call, $params);
-		return $response;
+		return $response['body'];
 	}
 	
 	/**
