@@ -133,7 +133,7 @@ class Curl extends ConsumerAbstract
 			throw new \Exception($message);
 		}
 		
-		return $response['body'];
+		return $response;
 	}
 	
 	/**
@@ -176,7 +176,7 @@ class Curl extends ConsumerAbstract
 			$body = $response;
 		}
 		
-		return array('code' => $code, 'body' => $body);
+		return array('code' => $code, 'body' => $body, 'headers' => $headers);
 	}
 	
 	/**
