@@ -116,7 +116,7 @@ class API
 		return array(
 			'name' => basename($file),
 			'mime' => $this->getMimeType($response['body']),
-			'meta' => null, // Will update to use x-dropbox-metadata header
+			'meta' => null, // Will return x-dropbox-metadata header once tested
 			'data' => $response['body'],
 		);
 	}
