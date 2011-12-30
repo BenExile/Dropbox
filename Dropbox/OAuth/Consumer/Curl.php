@@ -189,6 +189,7 @@ class Curl extends ConsumerAbstract
 	 */
 	private function parseTokenString($response)
 	{
+		var_dump($response);
 		$parts = explode('&', $response);
 		$token = new \stdClass();
 		foreach($parts as $part){
