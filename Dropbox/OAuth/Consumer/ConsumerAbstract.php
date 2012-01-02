@@ -114,7 +114,7 @@ abstract class ConsumerAbstract
 		$params['oauth_signature'] = $signature;
 		
 		// Build the signed request URL
-		$query = '?' . http_build_query($params,'','&');
+		$query = '?' . http_build_query($params, '', '&');
 		return array(
 			'url' => $url . $call . $query,
 			'postfields' => $params,
