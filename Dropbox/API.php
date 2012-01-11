@@ -103,7 +103,7 @@ class API
 	 * @param string $file Path to file, relative to root, including path
 	 * @return array
 	 */
-	public function getFile($file, $revision = null)
+	public function getFile($file, $revision = null, $destFile = null)
 	{
 		// rawurlencode the filename, then replace %2F with / for use in URL
 		$file = $this->normalisePath($file);
@@ -111,8 +111,17 @@ class API
 		
 		$call = 'files/' . $this->root . '/' . $encoded;
 		$params = array('rev' => $revision);
-		$response = $this->OAuth->fetch('GET', self::CONTENT_URL, $call, $params);
-		
+		$fileHandle = null;
+		if(!empty($destFile)){
+			$fileHandle = fopen($destFile, 'w');
+		}
+
+		$response = $this->OAuth->fetch('GET', self::CONTENT_URL, $call, $params, $fileHandle);
+	
+		if($fileHandle){	
+			fclose($fileHandle);
+		}
+
 		return array(
 			'name' => basename($file),
 			'mime' => $this->getMimeType($response['body']),

@@ -20,8 +20,6 @@ class Curl extends ConsumerAbstract
 	private $options = array(
 		CURLOPT_SSL_VERIFYPEER => false,
 		CURLOPT_VERBOSE        => true,
-		CURLOPT_HEADER         => true,
-		CURLOPT_RETURNTRANSFER => true,
 		CURLOPT_FOLLOWLOCATION => true,
 	);
 	
@@ -105,9 +103,10 @@ class Curl extends ConsumerAbstract
 	 * @param string $url The API endpoint
 	 * @param string $call The API method to call
 	 * @param array $params Additional parameters
+	 * @param resource $fileHandle optional valid  & open file handle to store the file instead of returning data in memory. You must close it
 	 * @return string|object stdClass
 	 */
-	public function fetch($method, $url, $call = '', array $additional = array())
+	public function fetch($method, $url, $call = '', array $additional = array(), $fileHandle = null)
 	{
 		// Get the signed request URL
 		$request = $this->getSignedRequest($method, $url, $call, $additional);
@@ -121,11 +120,20 @@ class Curl extends ConsumerAbstract
 			curl_setopt($handle, CURLOPT_POST, true);
 			curl_setopt($handle, CURLOPT_POSTFIELDS, $request['postfields']);
 		}
-		
+
+		if( !empty( $fileHandle ) ) {
+			curl_setopt($handle, CURLOPT_FILE, $fileHandle);   
+			curl_setopt($handle, CURLOPT_BINARYTRANSFER, true);
+		} else {
+			curl_setopt($handle, CURLOPT_HEADER, true);
+			curl_setopt($handle, CURLOPT_RETURNTRANSFER, true);
+		}
+
 		// Execute and parse the response
-		$raw = curl_exec($handle);
+		if($raw = curl_exec($handle)) {
+			$response = $this->parse($raw);
+		}
 		curl_close($handle);
-		$response = $this->parse($raw);
 		
 		// Check if an error occurred and throw an Exception
 		if(!empty($response['body']->error)){
