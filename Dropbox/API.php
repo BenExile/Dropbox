@@ -79,7 +79,7 @@ class API
 	{
 		if(file_exists($file)){
 			if(filesize($file) <= 157286400){
-				$call = 'files/' . $this->root . '/' . $this->normalisePath($path);
+				$call = 'files/' . $this->root . '/' . $this->encodePath($path);
 				// If no filename is provided we'll use the original filename
 				$filename = (is_string($filename)) ? $filename : basename($file);
 				$params = array(
@@ -105,11 +105,8 @@ class API
 	 */
 	public function getFile($file, $revision = null)
 	{
-		// rawurlencode the filename, then replace %2F with / for use in URL
-		$file = $this->normalisePath($file);
-		$encoded = str_replace('%2F', '/', rawurlencode($file));
-		
-		$call = 'files/' . $this->root . '/' . $encoded;
+		$file = $this->encodePath($file);		
+		$call = 'files/' . $this->root . '/' . $file;
 		$params = array('rev' => $revision);
 		$response = $this->OAuth->fetch('GET', self::CONTENT_URL, $call, $params);
 		
@@ -133,7 +130,7 @@ class API
 	 */
 	public function metaData($path = null, $rev = null, $limit = 10000, $hash = false, $list = true, $deleted = false)
 	{
-		$call = 'metadata/' . $this->root . '/' . $this->normalisePath($path);
+		$call = 'metadata/' . $this->root . '/' . $this->encodePath($path);
 		$params = array(
 			'file_limit' => ($limit < 1) ? 1 : (($limit > 10000) ? 10000 : (int) $limit),
 			'hash' => (is_string($hash)) ? $hash : 0,
@@ -153,7 +150,7 @@ class API
 	 */
 	public function revisions($file, $limit = 10)
 	{
-		$call = 'revisions/' . $this->root . '/' . $this->normalisePath($file);
+		$call = 'revisions/' . $this->root . '/' . $this->encodePath($file);
 		$params = array(
 			'rev_limit' => ($limit < 1) ? 1 : (($limit > 1000) ? 1000 : (int) $limit),
 		);
@@ -169,7 +166,7 @@ class API
 	 */
 	public function restore($file, $revision)
 	{
-		$call = 'restore/' . $this->root . '/' . $this->normalisePath($file);
+		$call = 'restore/' . $this->root . '/' . $this->encodePath($file);
 		$params = array('rev' => $revision);
 		$response = $this->OAuth->fetch('POST', self::API_URL, $call, $params);
 		return $response['body'];
@@ -185,7 +182,7 @@ class API
 	 */
 	public function search($query, $path = '', $limit = 1000, $deleted = false)
 	{
-		$call = 'search/' . $this->root . '/' . $this->normalisePath($path);
+		$call = 'search/' . $this->root . '/' . $this->encodePath($path);
 		$params = array(
 			'query' => $query,
 			'file_limit' => ($limit < 1) ? 1 : (($limit > 1000) ? 1000 : (int) $limit),
@@ -202,7 +199,7 @@ class API
 	 */
 	public function shares($path)
 	{
-		$call = 'shares/' . $this->root . '/' .$this->normalisePath($path);
+		$call = 'shares/' . $this->root . '/' .$this->encodePath($path);
 		$response = $this->OAuth->fetch('POST', self::API_URL, $call);
 		return $response['body'];
 	}
@@ -214,7 +211,7 @@ class API
 	 */
 	public function media($path)
 	{
-		$call = 'media/' . $this->root . '/' . $this->normalisePath($path);
+		$call = 'media/' . $this->root . '/' . $this->encodePath($path);
 		$response = $this->OAuth->fetch('POST', self::API_URL, $call);
 		return $response['body'];
 	}
@@ -237,9 +234,7 @@ class API
 		// If $size is not valid, default to 'small'
 		if(!in_array($size, $sizes)) $size = 'small';
 		
-		// Encode the filename for use in the signature base string
-		$encoded = rawurlencode($this->normalisePath($file));
-		$call = 'thumbnails/' . $this->root . '/' . $encoded;
+		$call = 'thumbnails/' . $this->root . '/' . $this->encodePath($file);
 		$params = array('format' => $format, 'size' => $size);
 		$response = $this->OAuth->fetch('GET', self::CONTENT_URL, $call, $params);
 		
@@ -336,6 +331,19 @@ class API
 	private function normalisePath($path)
 	{
 		$path = preg_replace('#/+#', '/', trim($path, '/'));
+		return $path;
+	}
+	
+	/**
+	 * Encode the path, then replace encoded slashes
+	 * with literal forward slash characters
+	 * @param string $path The path to encode
+	 * @return string
+	 */
+	private function encodePath($path)
+	{
+		$path = $this->normalisePath($path);
+		$path = str_replace('%2F', '/', rawurlencode($path));
 		return $path;
 	}
 }
