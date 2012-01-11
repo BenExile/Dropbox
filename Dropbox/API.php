@@ -336,6 +336,8 @@ class API
 	private function normalisePath($path)
 	{
 		$path = preg_replace('#/+#', '/', trim($path, '/'));
+		$path = rawurlencode($path);
+		$path = str_replace('%2F', '/', $path);
 		return $path;
 	}
 }
