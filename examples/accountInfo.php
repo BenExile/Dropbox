@@ -1,9 +1,13 @@
 <?php
 
+/**
+ * Retrieve information about the authenticated user's account
+ * @link https://www.dropbox.com/developers/reference/api#account-info
+ */
+
+// Require the bootstrap
 require_once('bootstrap.php');
 
-// Retrieve information about the authenticated user's account
-// @link https://www.dropbox.com/developers/reference/api#account-info
-
+// Retrieve the information and output
 $accountInfo = $dropbox->accountInfo();
 var_dump($accountInfo);
