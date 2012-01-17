@@ -12,24 +12,24 @@ This repository contains a PHP SDK that provides access to the [Dropbox REST API
 ```php
 <?php
 
-// Requires won't be used in autoloading environment
-require_once('Dropbox/API.php');
-require_once('Dropbox/OAuth/Consumer/ConsumerAbstract.php');
-require_once('Dropbox/OAuth/Consumer/Curl.php');
-require_once('Dropbox/OAuth/Storage/StorageInterface.php');
-require_once('Dropbox/OAuth/Storage/Session.php');
+// Register a simple autoload function
+spl_autoload_register(function($class){
+	require_once('path/to/Dropbox/' . $class . '.php');
+});
 
-$key      = 'xxxxxxxxxxxxxxx';  // Your Consumer Key
-$secret   = 'xxxxxxxxxxxxxxx';  // Your Consumer Secret
-$callback = 'http://localhost'; // Your Authorisation Callback URL
+// Set your consumer key, secret and callback URL
+$key      = 'XXXXXXXXXXXXXXX';
+$secret   = 'XXXXXXXXXXXXXXX';
+$callback = 'http://' . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'];
 
+// Instantiate the required Dropbox objects
 $storage = new \Dropbox\OAuth\Storage\Session;
-$OAuth = new \Dropbox\OAuth\Consumer\Curl($key, $secret, $storage, $callback);
+$OAuth   = new \Dropbox\OAuth\Consumer\Curl($key, $secret, $storage, $callback);
 $dropbox = new \Dropbox\API($OAuth);
 
 // Upload the readme for this lib to the root of your dropbox
-$put = $dropbox->putFile(realpath('readme.md'));
-var_dump($put);
+$upload = $dropbox->putFile(realpath('readme.md'));
+var_dump($upload);
 ```
 
 [Dropbox REST API]: https://www.dropbox.com/developers/reference/api
