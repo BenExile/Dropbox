@@ -1,9 +1,9 @@
 <?php
 
 // Don't allow direct access to the boostrap
-//if(basename($_SERVER['REQUEST_URI']) == 'bootstrap.php'){
-///	exit('bootstrap.php does nothing on its own. Please see the examples provided');
-//}
+if(basename($_SERVER['REQUEST_URI']) == 'bootstrap.php'){
+	exit('bootstrap.php does nothing on its own. Please see the examples provided');
+}
 
 // Set error reporting
 error_reporting(-1);
