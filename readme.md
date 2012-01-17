@@ -1,6 +1,8 @@
 ### Introduction
 
-This repository contains a PHP SDK that provides access to the [Dropbox REST API][]. The SDK conforms to the [PSR-0 standard][] for autoloading interoperability and requires PHP >= 5.3.0. Unless otherwise stated, all components of the SDK are licensed under the [MIT License][].
+This repository contains a PHP SDK that provides access to the [Dropbox REST API][].
+The SDK conforms to the [PSR-0 standard][] for autoloading interoperability and requires PHP >= 5.3.0. 
+Unless otherwise stated, all components of the SDK are licensed under the [MIT License][].
 
 ### Requirements
 
