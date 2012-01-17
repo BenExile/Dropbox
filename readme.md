@@ -15,7 +15,7 @@ Please see the [examples provided][].
 
 ### Buy Me A Beer
 
-I <3 open source, but [donations][] of alcoholic beverages are much appreciated and help me code harder >:D
+I &lt;3 open source, but [donations][] of alcoholic beverages are much appreciated and help me code harder &gt;:D
 
 [Dropbox REST API]: https://www.dropbox.com/developers/reference/api
 [PSR-0 standard]: https://github.com/php-fig/fig-standards/blob/master/accepted/PSR-0.md
