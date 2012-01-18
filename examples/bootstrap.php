@@ -1,5 +1,10 @@
 <?php
 
+/**
+ * A bootstrap for the Dropbox SDK usage examples
+ * @link https://github.com/BenTheDesigner/Dropbox/tree/master/examples
+ */
+
 // Don't allow direct access to the boostrap
 if(basename($_SERVER['REQUEST_URI']) == 'bootstrap.php'){
 	exit('bootstrap.php does nothing on its own. Please see the examples provided');
