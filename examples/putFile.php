@@ -17,8 +17,8 @@ file_put_contents($tmp, $data);
 // Upload the file with an alternative filename
 $put = $dropbox->putFile($tmp, 'api_upload_test.txt');
 
-// Dump the output
-var_dump($put);
-
 // Unlink the temporary file
 unlink($tmp);
+
+// Dump the output
+var_dump($put);
