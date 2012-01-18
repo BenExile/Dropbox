@@ -5,4 +5,4 @@
 3. **Run the examples** - You will now be able to run the examples provided!
 
 [create a new app]: https://www.dropbox.com/developers/apps
-[placeholders]: https://github.com/BenTheDesigner/Dropbox/blob/master/examples/bootstrap.php#L20-21
+[placeholders]: https://github.com/BenTheDesigner/Dropbox/blob/master/examples/bootstrap.php#L25-26
