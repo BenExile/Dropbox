@@ -10,7 +10,7 @@ require_once('bootstrap.php');
 
 // Create a temporary file and write some data to it
 $tmp = tempnam('/tmp', 'dropbox');
-$data = 'This file was uploaded at '. date('H:i:s') .' using the Dropbox API';
+$data = 'This file was uploaded using the Dropbox API!';
 file_put_contents($tmp, $data);
 
 // Upload the file with an alternative filename
