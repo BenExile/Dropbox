@@ -10,4 +10,6 @@ require_once('bootstrap.php');
 
 // Retrieve the information and output
 $accountInfo = $dropbox->accountInfo();
+
+// Dump the output
 var_dump($accountInfo);
