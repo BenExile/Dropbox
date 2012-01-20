@@ -27,6 +27,7 @@ $secret   = 'XXXXXXXXXXXXXXX';
 $callback = 'http://' . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'];
 
 // Instantiate the required Dropbox objects
-$storage = new \Dropbox\OAuth\Storage\Session;
+$encrypter = new \Dropbox\OAuth\Storage\Encrypter('12345678901234567890123456789012');
+$storage = new \Dropbox\OAuth\Storage\Session($encrypter);
 $OAuth = new \Dropbox\OAuth\Consumer\Curl($key, $secret, $storage, $callback);
 $dropbox = new \Dropbox\API($OAuth);
