@@ -22,5 +22,6 @@ I &lt;3 open source, but [donations][] of alcoholic beverages are much appreciat
 [PSR-0 standard]: https://github.com/php-fig/fig-standards/blob/master/accepted/PSR-0.md
 [MIT License]: https://github.com/BenTheDesigner/Dropbox/blob/master/mit-license.md
 [PHP cURL]: http://www.php.net/manual/en/book.curl.php
+[PHP Mcrypt]: http://php.net/manual/en/book.mcrypt.php
 [examples provided]: https://github.com/BenTheDesigner/Dropbox/tree/master/examples
 [donations]: https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=YQJX52Q6S54HA
