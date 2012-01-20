@@ -7,7 +7,8 @@ Unless otherwise stated, all components of the SDK are licensed under the [MIT L
 ### Requirements
 
 * PHP >= 5.3.0
-* [PHP cURL][]
+* [PHP cURL][] (\Dropbox\OAuth\Consumer\Curl)
+* [PHP Mcrypt][] (\Dropbox\OAuth\Storage\Encrypter)
 
 ### Usage & Examples
 
