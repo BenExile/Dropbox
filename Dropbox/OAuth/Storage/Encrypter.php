@@ -34,7 +34,7 @@ class Encrypter
 	{
 		if(!extension_loaded('mcrypt')){
 			throw new \Exception('The storage encrypter requires the MCrypt extension');
-		} elseif(($length = strlen($key)) !== self::KEY_SIZE){
+		} elseif(($length = mb_strlen($key, '8bit')) !== self::KEY_SIZE){
 			throw new \Exception('Expecting a 32 byte key, got ' . $length);
 		}
 		
