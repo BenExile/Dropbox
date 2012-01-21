@@ -1,7 +1,7 @@
 <?php
 
 /**
- * OAuth storage handler using PHP SESSION's
+ * OAuth storage handler using PHP sessions
  * @author Ben Tadiar <ben@handcraftedbyben.co.uk>
  * @link https://github.com/benthedesigner/dropbox
  * @package Dropbox\Oauth
@@ -24,7 +24,7 @@ class Session implements StorageInterface
 	private $encrypter = null;
 	
 	/**
-	 * Check if a SESSION has been started and if an instance
+	 * Check if a session has been started and if an instance
 	 * of the encrypter is passed, set the encryption object
 	 * @return void
 	 */
@@ -50,7 +50,7 @@ class Session implements StorageInterface
 	}
 	
 	/**
-	 * Get an OAuth token from the SESSION
+	 * Get an OAuth token from the session
 	 * If the encrpytion object is set then
 	 * decrypt the token before returning
 	 * @return array|bool
@@ -68,7 +68,7 @@ class Session implements StorageInterface
 	}
 	
 	/**
-	 * Set an OAuth token in the SESSION
+	 * Set an OAuth token in the session
 	 * If the encryption object is set then
 	 * encrypt the token before storing
 	 * @return void
