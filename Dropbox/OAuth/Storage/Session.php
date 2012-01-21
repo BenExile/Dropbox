@@ -39,6 +39,17 @@ class Session implements StorageInterface
 	}
 	
 	/**
+	 * Set the session namespace
+	 * $namespace corresponds to $_SESSION[$namespace] 
+	 * @param string $namespace
+	 * @return void
+	 */
+	public function setNamespace($namespace)
+	{
+		$this->namespace = $namespace;
+	}
+	
+	/**
 	 * Get an OAuth token from the SESSION
 	 * If the encrpytion object is set then
 	 * decrypt the token before returning
