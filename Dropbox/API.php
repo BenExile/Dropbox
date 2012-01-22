@@ -113,7 +113,7 @@ class API
 		return array(
 			'name' => basename($file),
 			'mime' => $this->getMimeType($response['body']),
-			'meta' => null, // Will return x-dropbox-metadata header once tested
+			'meta' => json_decode($response['headers']['x-dropbox-metadata']),
 			'data' => $response['body'],
 		);
 	}
@@ -241,6 +241,7 @@ class API
 		return array(
 			'name' => basename($file),
 			'mime' => $this->getMimeType($response['body']),
+			'meta' => json_decode($response['headers']['x-dropbox-metadata']),
 			'data' => $response['body'],
 		);
 	}
