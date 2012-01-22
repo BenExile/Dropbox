@@ -21,7 +21,7 @@ class Encrypter
 	
 	/**
 	 * Encryption key
-	 * @var string
+	 * @var null|string
 	 */
 	private $key = null;
 	
@@ -52,7 +52,7 @@ class Encrypter
 		$data = serialize($token);
 		$iv = mcrypt_create_iv(self::IV_SIZE, self::IV_SOURCE);
 		$cipherText = mcrypt_encrypt(self::CIPHER, $this->key, $data, self::MODE, $iv);
-		return bin2hex($iv . $cipherText);
+		return base64_encode($iv . $cipherText);
 	}
 	
 	/**
@@ -62,7 +62,7 @@ class Encrypter
 	 */
 	public function decrypt($cipherText)
 	{
-		$cipherText = pack('H*', $cipherText);
+		$cipherText = base64_decode($cipherText);
 		$iv = substr($cipherText, 0, self::IV_SIZE);
 		$cipherText = substr($cipherText, self::IV_SIZE);
 		$data = mcrypt_decrypt(self::CIPHER, $this->key, $cipherText, self::MODE, $iv);
