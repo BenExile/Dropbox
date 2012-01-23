@@ -49,7 +49,7 @@ class API
 	public function setRoot($root)
 	{
 		if($root !== 'sandbox' && $root !== 'dropbox'){
-			throw new \Exception("Expected a root of either 'dropbox' or 'sandbox', got '$root'");
+			throw new Exception("Expected a root of either 'dropbox' or 'sandbox', got '$root'");
 		} else {
 			$this->root = $root;
 		}
@@ -90,11 +90,11 @@ class API
 				$response = $this->OAuth->fetch('POST', self::CONTENT_URL, $call, $params);
 				return $response['body'];
 			}
-			throw new \Exception('File exceeds 150MB upload limit');
+			throw new Exception('File exceeds 150MB upload limit');
 		}
 		
 		// Throw an Exception if the file does not exist
-		throw new \Exception('Local file ' . $file . ' does not exist');
+		throw new Exception('Local file ' . $file . ' does not exist');
 	}
 	
 	/**

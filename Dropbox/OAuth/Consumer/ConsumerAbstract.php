@@ -154,7 +154,7 @@ abstract class ConsumerAbstract
 				$this->sigMethod = $method;
 				break;
 			default:
-				throw new \Exception('Unsupported signature method ' . $method);
+				throw new \Dropbox\Exception('Unsupported signature method ' . $method);
 		}
 	}
 	

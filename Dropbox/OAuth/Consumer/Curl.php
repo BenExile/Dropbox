@@ -36,7 +36,7 @@ class Curl extends ConsumerAbstract
 	{
 		// Check the cURL extension is loaded
 		if(!extension_loaded('curl')){
-			throw new \Exception('The cURL OAuth consumer requires the cURL extension');
+			throw new \Dropbox\Exception('The cURL OAuth consumer requires the cURL extension');
 		}
 		
 		$this->consumerKey = $key;
@@ -130,7 +130,7 @@ class Curl extends ConsumerAbstract
 		// Check if an error occurred and throw an Exception
 		if(!empty($response['body']->error)){
 			$message = $response['body']->error . ' (Status Code: ' . $response['code'] . ')';
-			throw new \Exception($message);
+			throw new \Dropbox\Exception($message);
 		}
 		
 		return $response;
