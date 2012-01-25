@@ -9,7 +9,7 @@
 // Require the bootstrap
 require_once('bootstrap.php');
 
-// Retrieve the information and output
+// Retrieve the account information
 $accountInfo = $dropbox->accountInfo();
 
 // Dump the output
