@@ -1,14 +1,18 @@
 ### Introduction
 
 This repository contains a PHP SDK that provides access to the [Dropbox REST API][].
-The SDK conforms to the [PSR-0 standard][] for autoloading interoperability and requires PHP >= 5.3.0. 
+The SDK conforms to the [PSR-0 standard][] for autoloading interoperability and requires PHP >= 5.3.1. 
 Unless otherwise stated, all components of the SDK are licensed under the [MIT License][].
 
 ### Requirements
 
-* PHP >= 5.3.0
+* PHP >= 5.3.1
 * [PHP cURL][] (\Dropbox\OAuth\Consumer\Curl)
 * [PHP Mcrypt][] (\Dropbox\OAuth\Storage\Encrypter)
+
+### Known Issues
+
+* The cURL consumer is affected by [PHP Bug #48962][] and PHP >= 5.3.1 must be used until further consumers are available
 
 ### Usage & Examples
 
@@ -23,5 +27,6 @@ I &lt;3 open source, but [donations][] of alcoholic beverages are much appreciat
 [MIT License]: https://github.com/BenTheDesigner/Dropbox/blob/master/mit-license.md
 [PHP cURL]: http://www.php.net/manual/en/book.curl.php
 [PHP Mcrypt]: http://php.net/manual/en/book.mcrypt.php
+[PHP Bug #48962]: https://bugs.php.net/bug.php?id=48962
 [examples provided]: https://github.com/BenTheDesigner/Dropbox/tree/master/examples
 [donations]: https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=YQJX52Q6S54HA
