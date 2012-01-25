@@ -12,7 +12,7 @@ Unless otherwise stated, all components of the SDK are licensed under the [MIT L
 
 ### Known Issues
 
-* The cURL consumer is affected by [PHP Bug #48962][] and PHP >= 5.3.1 must be used until further consumers are available
+* Due to [PHP Bug #48962][] affecting cURL, PHP >= 5.3.1 must be used until further consumers are available
 
 ### Usage & Examples
 
