@@ -21,6 +21,7 @@ class Curl extends ConsumerAbstract
 		CURLOPT_SSL_VERIFYPEER => false,
 		CURLOPT_VERBOSE        => true,
 		CURLOPT_HEADER         => true,
+		CURLINFO_HEADER_OUT    => false,
 		CURLOPT_RETURNTRANSFER => true,
 		CURLOPT_FOLLOWLOCATION => true,
 	);
@@ -32,7 +33,7 @@ class Curl extends ConsumerAbstract
 	 * @param StorageInterface $storage
 	 * @param string $callback
 	 */
-	public function __construct($key, $secret, StorageInterface $storage, $callback)
+	public function __construct($key, $secret, StorageInterface $storage, $callback = null)
 	{
 		// Check the cURL extension is loaded
 		if(!extension_loaded('curl')){
@@ -65,21 +66,9 @@ class Curl extends ConsumerAbstract
 	 * @link http://tools.ietf.org/html/rfc5849#section-2.2
 	 * @return void
 	 */
-	protected function authorise($callbackUrl = null)
+	protected function authorise()
 	{
-		// Get the request token
-		$token = $this->getToken();
-		
-		// Prepare request parameters
-		$params = array(
-			'oauth_token' => $token->oauth_token,
-			'oauth_token_secret' => $token->oauth_token_secret,
-			'oauth_callback' => $callbackUrl,
-		);
-		
-		// Build the URL and redirect the user
-		$query = '?' . http_build_query($params, '', '&');
-		$url = self::WEB_URL . self::AUTHORISE_METHOD . $query;
+		$url = $this->getAuthoriseUrl();
 		header('Location: ' . $url);
 		exit;
 	}
@@ -90,7 +79,7 @@ class Curl extends ConsumerAbstract
 	 * prevent having to request new tokens for each API call
 	 * @link http://tools.ietf.org/html/rfc5849#section-2.3
 	 */
-	protected function getAccessToken()
+	public function getAccessToken()
 	{
 		// Get the signed request URL
 		$response = $this->fetch('POST', API::API_URL, self::ACCESS_TOKEN_METHOD);

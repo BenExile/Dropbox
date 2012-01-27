@@ -27,19 +27,42 @@ abstract class ConsumerAbstract
 	/**
 	 * Authenticate using 3-legged OAuth flow, firstly
 	 * checking we don't already have tokens to use
-	 * @todo This needs work...
+	 * @return void
 	 */
 	protected function authenticate()
 	{
 		if((!$token = $this->storage->get()) || !isset($token->uid)){
-			if(!isset($_GET['uid'], $_GET['oauth_token'])){
+			if(!isset($_GET['uid'], $_GET['oauth_token']) || $token == false){
 				$this->storage->set(null);
 				$this->getRequestToken();
-				$this->authorise($this->callback);
+				// Redirect if not using the command line
+				if (PHP_SAPI !== 'cli') $this->authorise();
 			} else {
 				$this->getAccessToken();
 			}
 		}
+	}
+	
+	/**
+	 * Build the user authorisation URL
+	 * @return string
+	 */
+	public function getAuthoriseUrl()
+	{
+		// Get the request token
+		$token = $this->getToken();
+		
+		// Prepare request parameters
+		$params = array(
+			'oauth_token' => $token->oauth_token,
+			'oauth_token_secret' => $token->oauth_token_secret,
+			'oauth_callback' => $this->callback,
+		);
+		
+		// Build the URL and redirect the user
+		$query = '?' . http_build_query($params, '', '&');
+		$url = self::WEB_URL . self::AUTHORISE_METHOD . $query;
+		return $url;
 	}
 	
 	/**
