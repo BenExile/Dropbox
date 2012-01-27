@@ -14,6 +14,7 @@ if (PHP_SAPI !== 'cli') {
 // Set error reporting
 error_reporting(-1);
 ini_set('display_errors', 'On');
+ini_set('html_errors', 'Off');
 session_start();
 
 // Register a simple autoload function
@@ -23,6 +24,25 @@ spl_autoload_register(function($class){
 });
 
 echo 'Running Dropbox Test Suite Setup...' . PHP_EOL;
+
+// Check if a token is already stored
+if(file_exists('oauth.token')){
+	$token = file_get_contents('oauth.token');
+	if(unserialize($token) !== false){
+		// Prompt for use input
+		while(empty($response)){
+			echo 'Do you wish to delete the stored access token? (y/n): ';
+			$response = strtolower(trim(fgets(STDIN)));
+		}
+		// Exit if user chooses not to delete the token
+		if($response != 'y' && $response != 'yes'){
+			exit('Quitting setup. Your access token was not deleted.');
+		} else {
+			unlink('oauth.token');
+			echo 'Access token deleted. Continuing setup.' . PHP_EOL;
+		}
+	}
+}
 
 while(empty($consumerKey)){
 	echo 'Please enter your consumer key: ';
@@ -62,9 +82,9 @@ try {
 	if(@file_put_contents('oauth.token', $token) === false){
 		throw new \Dropbox\Exception('Unable to write token to file');
 	} else {
-		exit('Setup complete! You can now run the test suite.' . PHP_EOL);
+		exit('Setup complete! You can now run the test suite.');
 	}
 } catch(\Dropbox\Exception $e) {
 	echo $e->getMessage() . PHP_EOL;
-	exit('Setup failed. Please try running setup again.' . PHP_EOL);
+	exit('Setup failed! Please try running setup again.');
 }
