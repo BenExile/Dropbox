@@ -50,8 +50,13 @@ try {
 	
 	// Acquire the access token
 	echo "Acquiring access token...\r\n";
+	
 	$OAuth->getAccessToken();
-	$token = serialize($storage->get());
+	$token = serialize(array(
+		'token' => $storage->get(),
+		'consumerKey' => $consumerKey,
+		'consumerSecret' => $consumerSecret,
+	));
 	
 	// Write the access token to disk
 	if(@file_put_contents('oauth.token', $token) === false){
