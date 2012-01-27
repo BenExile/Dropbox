@@ -11,8 +11,7 @@ if (PHP_SAPI === 'cli') {
 }
 
 // Don't allow direct access to the boostrap
-if(basename($_SERVER['REQUEST_URI']) == 'bootstrap.php')
-{
+if(basename($_SERVER['REQUEST_URI']) == 'bootstrap.php'){
 	exit('bootstrap.php does nothing on its own. Please see the examples provided');
 }
 
@@ -31,6 +30,7 @@ spl_autoload_register(function($class){
 $key      = 'XXXXXXXXXXXXXXX';
 $secret   = 'XXXXXXXXXXXXXXX';
 
+// Check whether to use HTTPS and set the callback URL
 $protocol = (!empty($_SERVER['HTTPS'])) ? 'https' : 'http';
 $callback = $protocol . '://' . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'];
 
