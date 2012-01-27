@@ -6,11 +6,6 @@
  */
 
 // Don't allow direct access to the boostrap
-if (!isset($_SERVER['REQUEST_URI']))
-{
-	exit('This script cannot be run from command line');
-}
-
 if(basename($_SERVER['REQUEST_URI']) == 'bootstrap.php')
 {
 	exit('bootstrap.php does nothing on its own. Please see the examples provided');
