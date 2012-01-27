@@ -11,7 +11,8 @@ if (PHP_SAPI === 'cli') {
 }
 
 // Don't allow direct access to the boostrap
-if(basename($_SERVER['REQUEST_URI']) == 'bootstrap.php'){
+if(basename($_SERVER['REQUEST_URI']) == 'bootstrap.php')
+{
 	exit('bootstrap.php does nothing on its own. Please see the examples provided');
 }
 
@@ -29,7 +30,9 @@ spl_autoload_register(function($class){
 // Set your consumer key, secret and callback URL
 $key      = 'XXXXXXXXXXXXXXX';
 $secret   = 'XXXXXXXXXXXXXXX';
-$callback = 'http://' . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'];
+
+$protocol = (!empty($_SERVER['HTTPS'])) ? 'https' : 'http';
+$callback = $protocol . '://' . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'];
 
 // Instantiate the required Dropbox objects
 $encrypter = new \Dropbox\OAuth\Storage\Encrypter('XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX');
