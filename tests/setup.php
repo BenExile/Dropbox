@@ -1,8 +1,9 @@
 <?php
 
 /**
-* Setup script for the test suite
-* @todo PHPDOC
+* This setup script will acquire and store an
+* access token which can be used by the unit test suite
+* @link https://github.com/BenTheDesigner/Dropbox/tree/master/tests
 */
 
 // Restrict access to the command line
@@ -47,13 +48,18 @@ try {
 	echo "Press any key once you have completed this step...";
 	fgets(STDIN);
 	
-	// Acquire and store the access token
+	// Acquire the access token
 	echo "Acquiring access token...\r\n";
 	$OAuth->getAccessToken();
 	$token = serialize($storage->get());
-	file_put_contents('oauth.token', $token);
-	exit('Setup complete! You can now run the test suite.');
+	
+	// Write the access token to disk
+	if(@file_put_contents('oauth.token', $token) === false){
+		throw new \Dropbox\Exception('Unable to write token to file');
+	} else {
+		exit('Setup complete! You can now run the test suite.' . PHP_EOL);
+	}
 } catch(\Dropbox\Exception $e) {
-	// Exit, displaying the Exception message
-	exit($e->getMessage());
+	echo $e->getMessage() . PHP_EOL;
+	exit('Setup failed. Please try running setup again.' . PHP_EOL);
 }
