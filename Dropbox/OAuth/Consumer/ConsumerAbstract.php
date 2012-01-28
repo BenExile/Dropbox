@@ -35,8 +35,7 @@ abstract class ConsumerAbstract
 		if((!$this->storage->get('access_token'))){
 			if(!$this->storage->get('request_token')){
 				$this->getRequestToken();
-				// Redirect if not using the command line
-				if (PHP_SAPI !== 'cli') $this->authorise();
+				$this->authorise();
 			} else {
 				$this->getAccessToken();
 			}
@@ -66,9 +65,12 @@ abstract class ConsumerAbstract
 	 */
 	private function authorise()
 	{
-		$url = $this->getAuthoriseUrl();
-		header('Location: ' . $url);
-		exit;
+		// Only redirect if using CLI
+		if (PHP_SAPI !== 'cli'){
+			$url = $this->getAuthoriseUrl();
+			header('Location: ' . $url);
+			exit;
+		}
 	}
 	
 	/**
