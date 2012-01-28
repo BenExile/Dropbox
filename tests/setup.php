@@ -73,7 +73,7 @@ try {
 	
 	$OAuth->getAccessToken();
 	$token = serialize(array(
-		'token' => $storage->get(),
+		'token' => $storage->get('access_token'),
 		'consumerKey' => $consumerKey,
 		'consumerSecret' => $consumerSecret,
 	));
