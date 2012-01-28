@@ -55,29 +55,37 @@ class Session implements StorageInterface
 	 * decrypt the token before returning
 	 * @return array|bool
 	 */
-	public function get()
+	public function get($type)
 	{
-		if(isset($_SESSION[$this->namespace]['token'])){
-			$token = $_SESSION[$this->namespace]['token'];
-			if($this->encrypter instanceof Encrypter){
-				return $this->encrypter->decrypt($token);
+		if($type != 'request_token' && $type != 'access_token'){
+			throw new \Dropbox\Exception("Expected a type of either 'request_token' or 'access_token', got '$type'");
+		} else {
+			if(isset($_SESSION[$this->namespace][$type])){
+				$token = $_SESSION[$this->namespace][$type];
+				if($this->encrypter instanceof Encrypter){
+					return $this->encrypter->decrypt($token);
+				}
+				return $token;
 			}
-			return $token;
+			return false;
 		}
-		return false;
 	}
 	
 	/**
-	 * Set an OAuth token in the session
+	 * Set an OAuth token in the session by type
 	 * If the encryption object is set then
 	 * encrypt the token before storing
 	 * @return void
 	 */
-	public function set($token)
+	public function set($token, $type)
 	{
-		if($this->encrypter instanceof Encrypter){
-			$token = $this->encrypter->encrypt($token);
+		if($type != 'request_token' && $type != 'access_token'){
+			throw new \Dropbox\Exception("Expected a type of either 'request_token' or 'access_token', got '$type'");
+		} else {
+			if($this->encrypter instanceof Encrypter){
+				$token = $this->encrypter->encrypt($token);
+			}
+			$_SESSION[$this->namespace][$type] = $token;
 		}
-		$_SESSION[$this->namespace]['token'] = $token;
 	}
 }

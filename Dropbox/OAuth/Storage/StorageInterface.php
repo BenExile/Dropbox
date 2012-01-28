@@ -11,6 +11,6 @@ namespace Dropbox\OAuth\Storage;
 
 interface StorageInterface
 {
-	public function get();
-	public function set($token);
+	public function get($type);
+	public function set($token, $type);
 }
