@@ -8,6 +8,7 @@
 * @subpackage Consumer
 */
 namespace Dropbox\OAuth\Consumer;
+use \Dropbox\API as API;
 abstract class ConsumerAbstract
 {
 	// Dropbox web endpoint
@@ -31,9 +32,8 @@ abstract class ConsumerAbstract
 	 */
 	protected function authenticate()
 	{
-		if((!$token = $this->storage->get()) || !isset($token->uid)){
-			if(!isset($_GET['uid'], $_GET['oauth_token']) || $token == false){
-				$this->storage->set(null);
+		if((!$this->storage->get('access_token'))){
+			if(!$this->storage->get('request_token')){
 				$this->getRequestToken();
 				// Redirect if not using the command line
 				if (PHP_SAPI !== 'cli') $this->authorise();
@@ -44,25 +44,67 @@ abstract class ConsumerAbstract
 	}
 	
 	/**
-	 * Build the user authorisation URL
-	 * @return string
+	* Acquire an unauthorised request token
+	* @link http://tools.ietf.org/html/rfc5849#section-2.1
+	* @return void
+	*/
+	private function getRequestToken()
+	{
+		// Nullify any request token we already have
+		$this->storage->set(null, 'request_token');
+		$url = API::API_URL . self::REQUEST_TOKEN_METHOD;
+		$response = $this->fetch('POST', $url, '');
+		$token = $this->parseTokenString($response['body']);
+		$this->storage->set($token, 'request_token');
+	}
+	
+	/**
+	 * Obtain user authorisation
+	 * The user will be redirected to Dropbox' web endpoint
+	 * @link http://tools.ietf.org/html/rfc5849#section-2.2
+	 * @return void
 	 */
+	private function authorise()
+	{
+		$url = $this->getAuthoriseUrl();
+		header('Location: ' . $url);
+		exit;
+	}
+	
+	/**
+	* Build the user authorisation URL
+	* @return string
+	*/
 	public function getAuthoriseUrl()
 	{
 		// Get the request token
 		$token = $this->getToken();
-		
+	
 		// Prepare request parameters
 		$params = array(
-			'oauth_token' => $token->oauth_token,
-			'oauth_token_secret' => $token->oauth_token_secret,
-			'oauth_callback' => $this->callback,
+				'oauth_token' => $token->oauth_token,
+				'oauth_token_secret' => $token->oauth_token_secret,
+				'oauth_callback' => $this->callback,
 		);
-		
+	
 		// Build the URL and redirect the user
 		$query = '?' . http_build_query($params, '', '&');
 		$url = self::WEB_URL . self::AUTHORISE_METHOD . $query;
 		return $url;
+	}
+	
+	/**
+	 * Acquire an access token
+	 * Tokens acquired at this point should be stored to
+	 * prevent having to request new tokens for each API call
+	 * @link http://tools.ietf.org/html/rfc5849#section-2.3
+	 */
+	public function getAccessToken()
+	{
+		// Get the signed request URL
+		$response = $this->fetch('POST', API::API_URL, self::ACCESS_TOKEN_METHOD);
+		$token = $this->parseTokenString($response['body']);
+		$this->storage->set($token, 'access_token');
 	}
 	
 	/**
@@ -72,12 +114,14 @@ abstract class ConsumerAbstract
 	 * if we have not yet started the authentication process
 	 * @return object stdClass
 	 */
-	protected function getToken()
+	private function getToken()
 	{
-		if(!$token = $this->storage->get()){
-			$token = new \stdClass();
-			$token->oauth_token = null;
-			$token->oauth_token_secret = null;
+		if(!$token = $this->storage->get('access_token')){
+			if(!$token = $this->storage->get('request_token')){
+				$token = new \stdClass();
+				$token->oauth_token = null;
+				$token->oauth_token_secret = null;
+			}
 		}
 		return $token;
 	}
@@ -179,6 +223,26 @@ abstract class ConsumerAbstract
 			default:
 				throw new \Dropbox\Exception('Unsupported signature method ' . $method);
 		}
+	}
+	
+	/**
+	* Parse response parameters for a token into an object
+	* Dropbox returns tokens in the response parameters, and
+	* not a JSON encoded object as per other API requests
+	* @link http://oauth.net/core/1.0/#response_parameters
+	* @param string $response
+	* @return object stdClass
+	*/
+	private function parseTokenString($response)
+	{
+		$parts = explode('&', $response);
+		$token = new \stdClass();
+		foreach($parts as $part){
+			list($k, $v) = explode('=', $part, 2);
+			$k = strtolower($k);
+			$token->$k = $v;
+		}
+		return $token;
 	}
 	
 	/**

@@ -46,46 +46,6 @@ class Curl extends ConsumerAbstract
 		$this->callback = $callback;
 		$this->authenticate();
 	}
-	
-	/**
-	 * Acquire an unauthorised request token
-	 * @link http://tools.ietf.org/html/rfc5849#section-2.1
-	 * @return void
-	 */
-	protected function getRequestToken()
-	{
-		$url = API::API_URL . self::REQUEST_TOKEN_METHOD;
-		$response = $this->fetch('POST', $url, '');
-		$token = $this->parseTokenString($response['body']);
-		$this->storage->set($token);
-	}
-	
-	/**
-	 * Obtain user authorisation
-	 * The user will be redirected to Dropbox' web endpoint
-	 * @link http://tools.ietf.org/html/rfc5849#section-2.2
-	 * @return void
-	 */
-	protected function authorise()
-	{
-		$url = $this->getAuthoriseUrl();
-		header('Location: ' . $url);
-		exit;
-	}
-	
-	/**
-	 * Acquire an access token
-	 * Tokens acquired at this point should be stored to
-	 * prevent having to request new tokens for each API call
-	 * @link http://tools.ietf.org/html/rfc5849#section-2.3
-	 */
-	public function getAccessToken()
-	{
-		// Get the signed request URL
-		$response = $this->fetch('POST', API::API_URL, self::ACCESS_TOKEN_METHOD);
-		$token = $this->parseTokenString($response['body']);
-		$this->storage->set($token);
-	}
 
 	/**
 	 * Execute an API call
@@ -166,25 +126,5 @@ class Curl extends ConsumerAbstract
 		}
 		
 		return array('code' => $code, 'body' => $body, 'headers' => $headers);
-	}
-	
-	/**
-	 * Parse response parameters for a token into an object
-	 * Dropbox returns tokens in the response parameters, and
-	 * not a JSON encoded object as per other API requests
-	 * @link http://oauth.net/core/1.0/#response_parameters
-	 * @param string $response
-	 * @return object stdClass
-	 */
-	private function parseTokenString($response)
-	{
-		$parts = explode('&', $response);
-		$token = new \stdClass();
-		foreach($parts as $part){
-			list($k, $v) = explode('=', $part, 2);
-			$k = strtolower($k);
-			$token->$k = $v;
-		}
-		return $token;
 	}
 }
