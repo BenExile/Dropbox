@@ -99,8 +99,8 @@ class API
 					'file' => '@' . str_replace('\\', '/', $file) . ';filename=' . $filename,
 					'overwrite' => (int) $overwrite,
 				);
-				$response = $this->OAuth->fetch('POST', self::CONTENT_URL, $call, $params);
-				return $response['body'];
+				$response = $this->fetch('POST', self::CONTENT_URL, $call, $params);
+				return $response;
 			}
 			throw new Exception('File exceeds 150MB upload limit');
 		}
@@ -117,11 +117,16 @@ class API
 	 */
 	public function getFile($file, $revision = null)
 	{
+		// Only allow php response format for this call
+		if($this->responseFormat !== 'php'){
+			throw new Exception('This method only supports the `php` response format');
+		}
+		
 		$file = $this->encodePath($file);		
 		$call = 'files/' . $this->root . '/' . $file;
-		$params = array('rev' => $revision);
+		$params = array('rev' => $revision);	
 		$response = $this->OAuth->fetch('GET', self::CONTENT_URL, $call, $params);
-		
+
 		return array(
 			'name' => basename($file),
 			'mime' => $this->getMimeType($response['body']),
@@ -150,8 +155,8 @@ class API
 			'include_deleted' => (int) $deleted,
 			'rev' => (is_string($rev)) ? $rev : null,
 		);
-		$response = $this->OAuth->fetch('POST', self::API_URL, $call, $params);
-		return $response['body'];
+		$response = $this->fetch('POST', self::API_URL, $call, $params);
+		return $response;
 	}
 	
 	/**
@@ -166,8 +171,8 @@ class API
 		$params = array(
 			'rev_limit' => ($limit < 1) ? 1 : (($limit > 1000) ? 1000 : (int) $limit),
 		);
-		$response = $this->OAuth->fetch('GET', self::API_URL, $call, $params);
-		return $response['body'];
+		$response = $this->fetch('GET', self::API_URL, $call, $params);
+		return $response;
 	}
 	
 	/**
@@ -180,8 +185,8 @@ class API
 	{
 		$call = 'restore/' . $this->root . '/' . $this->encodePath($file);
 		$params = array('rev' => $revision);
-		$response = $this->OAuth->fetch('POST', self::API_URL, $call, $params);
-		return $response['body'];
+		$response = $this->fetch('POST', self::API_URL, $call, $params);
+		return $response;
 	}
 	
 	/**
@@ -200,8 +205,8 @@ class API
 			'file_limit' => ($limit < 1) ? 1 : (($limit > 1000) ? 1000 : (int) $limit),
 			'include_deleted' => (int) $deleted,
 		);
-		$response = $this->OAuth->fetch('GET', self::API_URL, $call, $params);
-		return $response['body'];
+		$response = $this->fetch('GET', self::API_URL, $call, $params);
+		return $response;
 	}
 	
 	/**
@@ -212,8 +217,8 @@ class API
 	public function shares($path)
 	{
 		$call = 'shares/' . $this->root . '/' .$this->encodePath($path);
-		$response = $this->OAuth->fetch('POST', self::API_URL, $call);
-		return $response['body'];
+		$response = $this->fetch('POST', self::API_URL, $call);
+		return $response;
 	}
 	
 	/**
@@ -224,8 +229,8 @@ class API
 	public function media($path)
 	{
 		$call = 'media/' . $this->root . '/' . $this->encodePath($path);
-		$response = $this->OAuth->fetch('POST', self::API_URL, $call);
-		return $response['body'];
+		$response = $this->fetch('POST', self::API_URL, $call);
+		return $response;
 	}
 	
 	/**
@@ -237,6 +242,11 @@ class API
 	 */
 	public function thumbnails($file, $format = 'JPEG', $size = 'small')
 	{
+		// Only allow php response format for this call
+		if($this->responseFormat !== 'php'){
+			throw new Exception('This method only supports the `php` response format');
+		}
+		
 		$format = strtoupper($format);
 		// If $format is not 'PNG', default to 'JPEG'
 		if($format != 'PNG') $format = 'JPEG';
@@ -272,8 +282,8 @@ class API
 			'from_path' => $this->normalisePath($from),
 			'to_path' => $this->normalisePath($to),
 		);
-		$response = $this->OAuth->fetch('POST', self::API_URL, $call, $params);
-		return $response['body'];
+		$response = $this->fetch('POST', self::API_URL, $call, $params);
+		return $response;
 	}
 	
 	/**
@@ -285,8 +295,8 @@ class API
 	{
 		$call = 'fileops/create_folder';
 		$params = array('root' => $this->root, 'path' => $this->normalisePath($path));
-		$response = $this->OAuth->fetch('POST', self::API_URL, $call, $params);
-		return $response['body'];
+		$response = $this->fetch('POST', self::API_URL, $call, $params);
+		return $response;
 	}
 	
 	/**
@@ -298,8 +308,8 @@ class API
 	{
 		$call = 'fileops/delete';
 		$params = array('root' => $this->root, 'path' => $this->normalisePath($path));
-		$response = $this->OAuth->fetch('POST', self::API_URL, $call, $params);
-		return $response['body'];
+		$response = $this->fetch('POST', self::API_URL, $call, $params);
+		return $response;
 	}
 	
 	/**
@@ -316,8 +326,8 @@ class API
 				'from_path' => $this->normalisePath($from),
 				'to_path' => $this->normalisePath($to),
 		);
-		$response = $this->OAuth->fetch('POST', self::API_URL, $call, $params);
-		return $response['body'];
+		$response = $this->fetch('POST', self::API_URL, $call, $params);
+		return $response;
 	}
 	
 	/**
