@@ -3,7 +3,7 @@
 /**
  * Upload a file to the authenticated user's Dropbox
  * @link https://www.dropbox.com/developers/reference/api#files-POST
- * @link https://github.com/BenTheDesigner/Dropbox/blob/master/Dropbox/API.php#L68-98
+ * @link https://github.com/BenTheDesigner/Dropbox/blob/master/Dropbox/API.php#L80-110
  */
 
 // Require the bootstrap

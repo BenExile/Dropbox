@@ -3,7 +3,7 @@
 /**
  * Retrieve information about the authenticated user's account
  * @link https://www.dropbox.com/developers/reference/api#account-info
- * @link https://github.com/BenTheDesigner/Dropbox/blob/master/Dropbox/API.php#L58-66
+ * @link https://github.com/BenTheDesigner/Dropbox/blob/master/Dropbox/API.php#L70-78
  */
 
 // Require the bootstrap
