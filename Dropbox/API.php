@@ -31,6 +31,18 @@ class API
 	private $root;
 	
 	/**
+	 * Format of the API response
+	 * @var string
+	 */
+	private $responseFormat = 'php';
+	
+	/**
+	 * JSONP callback
+	 * @var string
+	 */
+	private $callback = 'dropboxCallback';
+	
+	/**
 	 * Set the OAuth consumer object
 	 * @param OAuth\Consumer $OAuth
 	 */
@@ -61,8 +73,8 @@ class API
 	 */
 	public function accountInfo()
 	{
-		$response = $this->OAuth->fetch('POST', self::API_URL, 'account/info');
-		return $response['body'];
+		$response = $this->fetch('POST', self::API_URL, 'account/info');
+		return $response;
 	}
 	
 	/**
@@ -306,6 +318,56 @@ class API
 		);
 		$response = $this->OAuth->fetch('POST', self::API_URL, $call, $params);
 		return $response['body'];
+	}
+	
+	/**
+	 * Intermediate fetch function
+	 * @param string $method The HTTP method
+	 * @param string $url The API endpoint
+	 * @param string $call The API method to call
+	 * @param array $params Additional parameters
+	 * @return mixed
+	 */
+	private function fetch($method, $url, $call, array $params = array())
+	{
+		// Make the API call via the consumer
+		$response = $this->OAuth->fetch($method, $url, $call, $params);
+		
+		// Format the response and return
+		switch($this->responseFormat){
+			case 'json':
+				return json_encode($response);
+			case 'jsonp':
+				$response = json_encode($response);
+				return $this->callback . '(' . $response . ')';
+			default:
+				return $response;
+		}
+	}
+	
+	/**
+	 * Set the API response format
+	 * @param string $format One of php, json or jsonp
+	 * @return void
+	 */
+	public function setResponseFormat($format)
+	{
+		$format = strtolower($format);
+		if(!in_array($format, array('php', 'json', 'jsonp'))){
+			throw new Exception("Expected a format of php, json or jsonp, got '$format'");
+		} else {
+			$this->responseFormat = $format;
+		}
+	}
+	
+	/**
+	* Set the JSONP callback function
+	* @param string $function
+	* @return void
+	*/
+	public function setCallback($function)
+	{
+		$this->callback = $function;
 	}
 	
 	/**

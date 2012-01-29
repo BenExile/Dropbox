@@ -56,7 +56,7 @@ class Curl extends ConsumerAbstract
 	 * @param array $params Additional parameters
 	 * @return string|object stdClass
 	 */
-	public function fetch($method, $url, $call = '', array $additional = array())
+	public function fetch($method, $url, $call, array $additional = array())
 	{
 		// Get the signed request URL
 		$request = $this->getSignedRequest($method, $url, $call, $additional);
