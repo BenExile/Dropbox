@@ -27,6 +27,12 @@ abstract class ConsumerAbstract
 	private $sigMethod = 'HMAC-SHA1';
 	
 	/**
+	 * Output file handle
+	 * @var null|resource
+	 */
+	protected $outFile = null;
+	
+	/**
 	 * Authenticate using 3-legged OAuth flow, firstly
 	 * checking we don't already have tokens to use
 	 * @return void
@@ -226,6 +232,18 @@ abstract class ConsumerAbstract
 			default:
 				throw new \Dropbox\Exception('Unsupported signature method ' . $method);
 		}
+	}
+	
+	/**
+	 * Set the output file
+	 * @return void
+	 */
+	public function setOutFile($handle)
+	{
+		if(!is_resource($handle) || get_resource_type($handle) != 'stream'){
+			throw new \Dropbox\Exception('Outfile must be a stream resource');
+		}
+		$this->outFile = $handle;
 	}
 	
 	/**

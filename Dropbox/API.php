@@ -113,23 +113,37 @@ class API
 	 * Downloads a file
 	 * Returns the base filename, raw file data and mime type returned by Fileinfo
 	 * @param string $file Path to file, relative to root, including path
+	 * @param string $outFile Filename to write the downloaded file to
+	 * @param string $revision The revision of the file to retrieve
 	 * @return array
 	 */
-	public function getFile($file, $revision = null)
+	public function getFile($file, $outFile = null, $revision = null)
 	{
 		// Only allow php response format for this call
 		if($this->responseFormat !== 'php'){
 			throw new Exception('This method only supports the `php` response format');
 		}
 		
+		$handle = null;
+		if(!is_null($outFile)){
+			if((!$handle = fopen($outFile, 'w'))){
+				throw new Exception("Unable to open file handle for $outFile");
+			} else {
+				$this->OAuth->setOutFile($handle);
+			}
+		}
+		
 		$file = $this->encodePath($file);		
 		$call = 'files/' . $this->root . '/' . $file;
-		$params = array('rev' => $revision);	
+		$params = array('rev' => $revision);
 		$response = $this->OAuth->fetch('GET', self::CONTENT_URL, $call, $params);
-
+		
+		// Close the file handle if one was opened
+		if($handle) fclose($handle);
+		
 		return array(
-			'name' => basename($file),
-			'mime' => $this->getMimeType($response['body']),
+			'name' => ($outFile) ? $outFile : basename($file),
+			'mime' => ($outFile) ? null : $this->getMimeType($response['body']),
 			'meta' => json_decode($response['headers']['x-dropbox-metadata']),
 			'data' => $response['body'],
 		);

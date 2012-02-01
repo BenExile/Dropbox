@@ -63,18 +63,34 @@ class Curl extends ConsumerAbstract
 		
 		// Initialise and execute a cURL request
 		$handle = curl_init($request['url']);
-		curl_setopt_array($handle, $this->options);
+		
+		// If an outfile is specified then set the cURL options
+		if($this->outFile){
+			$this->options[CURLOPT_RETURNTRANSFER] = false;
+			$this->options[CURLOPT_HEADER] = false;
+			$this->options[CURLOPT_FILE] = $this->outFile;
+			$this->options[CURLOPT_BINARYTRANSFER] = true;
+			// Unset the outfile for subsequent requests
+			$this->outFile = null;
+		}
 		
 		// POST request specific
 		if($method == 'POST'){
-			curl_setopt($handle, CURLOPT_POST, true);
-			curl_setopt($handle, CURLOPT_POSTFIELDS, $request['postfields']);
+			$this->options[CURLOPT_POST] = true;
+			$this->options[CURLOPT_POSTFIELDS] = $request['postfields'];
 		}
 		
+		// Set the cURL options at once
+		curl_setopt_array($handle, $this->options);
+		
 		// Execute and parse the response
-		$raw = curl_exec($handle);
+		$response = curl_exec($handle);
 		curl_close($handle);
-		$response = $this->parse($raw);
+		
+		// Parse the response if it is a string
+		if(is_string($response)){
+			$response = $this->parse($response);
+		}
 		
 		// Check if an error occurred and throw an Exception
 		if(!empty($response['body']->error)){
