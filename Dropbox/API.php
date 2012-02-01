@@ -140,10 +140,10 @@ class API
 		
 		// Close the file handle if one was opened
 		if($handle) fclose($handle);
-		
+
 		return array(
 			'name' => ($outFile) ? $outFile : basename($file),
-			'mime' => ($outFile) ? null : $this->getMimeType($response['body']),
+			'mime' => $this->getMimeType(($outFile) ?: $response['body'], $outFile),
 			'meta' => json_decode($response['headers']['x-dropbox-metadata']),
 			'data' => $response['body'],
 		);
@@ -397,13 +397,15 @@ class API
 	/**
 	 * Get the mime type of downloaded file
 	 * If the Fileinfo extension is not loaded, return false
-	 * @param string $data File contents as a string
+	 * @param string $data File contents as a string or filename
+	 * @param string $isFilename Is $data a filename?
 	 * @return boolean|string Mime type and encoding of the file
 	 */
-	private function getMimeType($data)
+	private function getMimeType($data, $isFilename = false)
 	{
 		if(extension_loaded('fileinfo')){
 			$finfo = new \finfo(FILEINFO_MIME);
+			if($isFilename !== false) return $finfo->file($data);
 			return $finfo->buffer($data);
 		}
 		return false;
