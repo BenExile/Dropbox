@@ -117,7 +117,7 @@ class API
 	 * @param string $revision The revision of the file to retrieve
 	 * @return array
 	 */
-	public function getFile($file, $outFile = null, $revision = null)
+	public function getFile($file, $outFile = false, $revision = null)
 	{
 		// Only allow php response format for this call
 		if($this->responseFormat !== 'php'){
@@ -125,7 +125,8 @@ class API
 		}
 		
 		$handle = null;
-		if(!is_null($outFile)){
+		if($outFile !== false){
+			// Create a file handle if $outFile is specified
 			if((!$handle = fopen($outFile, 'w'))){
 				throw new Exception("Unable to open file handle for $outFile");
 			} else {
