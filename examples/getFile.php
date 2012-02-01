@@ -16,8 +16,8 @@ require_once('bootstrap.php');
 $path = 'api_upload_test.txt';
 
 // Set the output file
-// If $outFile is set, the file will be written directly
-// to disk rather than storing file data in memory
+// If $outFile is set, the downloaded file will be written
+// directly to disk rather than storing file data in memory
 $outFile = false;
 
 // Download the file
