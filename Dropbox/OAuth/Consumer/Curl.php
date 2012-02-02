@@ -17,7 +17,7 @@ class Curl extends ConsumerAbstract
 	 * Default cURL options
 	 * @var array
 	 */
-	private $options = array(
+	private $defaultOptions = array(
 		CURLOPT_SSL_VERIFYPEER => false,
 		CURLOPT_VERBOSE        => true,
 		CURLOPT_HEADER         => true,
@@ -64,24 +64,27 @@ class Curl extends ConsumerAbstract
 		// Initialise and execute a cURL request
 		$handle = curl_init($request['url']);
 		
+		// Get the default options array
+		$options = $this->defaultOptions;
+		
 		// If an outfile is specified then set the cURL options
 		if($this->outFile){
-			$this->options[CURLOPT_RETURNTRANSFER] = false;
-			$this->options[CURLOPT_HEADER] = false;
-			$this->options[CURLOPT_FILE] = $this->outFile;
-			$this->options[CURLOPT_BINARYTRANSFER] = true;
+			$options[CURLOPT_RETURNTRANSFER] = false;
+			$options[CURLOPT_HEADER] = false;
+			$options[CURLOPT_FILE] = $this->outFile;
+			$options[CURLOPT_BINARYTRANSFER] = true;
 			// Unset the outfile for subsequent requests
 			$this->outFile = null;
 		}
 		
 		// POST request specific
 		if($method == 'POST'){
-			$this->options[CURLOPT_POST] = true;
-			$this->options[CURLOPT_POSTFIELDS] = $request['postfields'];
+			$options[CURLOPT_POST] = true;
+			$options[CURLOPT_POSTFIELDS] = $request['postfields'];
 		}
 		
 		// Set the cURL options at once
-		curl_setopt_array($handle, $this->options);
+		curl_setopt_array($handle, $options);
 		
 		// Execute and parse the response
 		$response = curl_exec($handle);
