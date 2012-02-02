@@ -127,7 +127,7 @@ class API
 		$handle = null;
 		if($outFile !== false){
 			// Create a file handle if $outFile is specified
-			if((!$handle = fopen($outFile, 'w'))){
+			if(!$handle = fopen($outFile, 'w')){
 				throw new Exception("Unable to open file handle for $outFile");
 			} else {
 				$this->OAuth->setOutFile($handle);
