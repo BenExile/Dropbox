@@ -137,7 +137,7 @@ class API
 		$file = $this->encodePath($file);		
 		$call = 'files/' . $this->root . '/' . $file;
 		$params = array('rev' => $revision);
-		$response = $this->OAuth->fetch('GET', self::CONTENT_URL, $call, $params);
+		$response = $this->fetch('GET', self::CONTENT_URL, $call, $params);
 		
 		// Close the file handle if one was opened
 		if($handle) fclose($handle);
@@ -273,7 +273,7 @@ class API
 		
 		$call = 'thumbnails/' . $this->root . '/' . $this->encodePath($file);
 		$params = array('format' => $format, 'size' => $size);
-		$response = $this->OAuth->fetch('GET', self::CONTENT_URL, $call, $params);
+		$response = $this->fetch('GET', self::CONTENT_URL, $call, $params);
 		
 		return array(
 			'name' => basename($file),
