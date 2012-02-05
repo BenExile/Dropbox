@@ -18,9 +18,11 @@ Unless otherwise stated, all components of the SDK are licensed under the [MIT L
 
 Please see the [examples provided][].
 
-### Buy Me A Beer
+### Show Your Support
 
-I &lt;3 open source, but [donations][] of alcoholic beverages are much appreciated and help me code harder &gt;:D
+If you'd like to show your support, [donations][] of alcoholic beverages are much appreciated and help me code harder &gt;:D. You can also endorse me using the link below and help me earn badges and geek cred on Coderwall.
+
+[![endorse](http://api.coderwall.com/benthedesigner/endorsecount.png)](http://coderwall.com/benthedesigner) 
 
 [Dropbox REST API]: https://www.dropbox.com/developers/reference/api
 [PSR-0 standard]: https://github.com/php-fig/fig-standards/blob/master/accepted/PSR-0.md
