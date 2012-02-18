@@ -261,6 +261,7 @@ abstract class ConsumerAbstract
 		if(!is_resource($handle) || get_resource_type($handle) != 'stream'){
 			throw new \Dropbox\Exception('Infile must be a stream resource');
 		}
+		fseek($handle, 0);
 		$this->inFile = $handle;
 	}
 	

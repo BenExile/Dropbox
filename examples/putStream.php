@@ -9,12 +9,18 @@
 // Require the bootstrap
 require_once('bootstrap.php');
 
-// Open a stream for reading
+// Open a stream for reading and writing
+$stream = fopen('php://temp', 'rw');
+
+// Write some data to the stream
 $data = 'This file was uploaded using the Dropbox API!';
-$stream = fopen('data://text/plain,' . $data, 'r');
+fwrite($stream, $data);
 
 // Upload the stream data to the specified filename
 $put = $dropbox->putStream($stream, 'api_upload_test.txt');
+
+// Close the stream
+fclose($stream);
 
 // Dump the output
 var_dump($put);
