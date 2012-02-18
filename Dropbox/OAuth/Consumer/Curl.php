@@ -67,23 +67,21 @@ class Curl extends ConsumerAbstract
 		// Get the default options array
 		$options = $this->defaultOptions;
 		
-		// If an outfile is specified then set the cURL options
-		if($method == 'GET' && $this->outFile){
+		if($method == 'GET' && $this->outFile){ // GET
 			$options[CURLOPT_RETURNTRANSFER] = false;
 			$options[CURLOPT_HEADER] = false;
 			$options[CURLOPT_FILE] = $this->outFile;
 			$options[CURLOPT_BINARYTRANSFER] = true;
-			// Unset the outfile for subsequent requests
 			$this->outFile = null;
-		} elseif($method == 'POST') {
+		} elseif($method == 'POST') { // POST
 			$options[CURLOPT_POST] = true;
 			$options[CURLOPT_POSTFIELDS] = $request['postfields'];
-		} elseif($method == 'PUT' && $this->inFile) {
+		} elseif($method == 'PUT' && $this->inFile) { // PUT
 			$options[CURLOPT_PUT] = true;
 			$options[CURLOPT_INFILE] = $this->inFile;
+			// @todo Update so the data is not loaded into memory to get its size
 			$options[CURLOPT_INFILESIZE] = strlen(stream_get_contents($this->inFile));
 			fseek($this->inFile, 0);
-			// Unset the infile for subsequent requests
 			$this->inFile = null;
 		}
 		
