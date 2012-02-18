@@ -3,7 +3,7 @@
 /**
  * Retreive the metadata for a file/folder
  * @link https://www.dropbox.com/developers/reference/api#metadata
- * @link https://github.com/BenTheDesigner/Dropbox/blob/master/Dropbox/API.php#L153-175
+ * @link https://github.com/BenTheDesigner/Dropbox/blob/master/Dropbox/API.php#L170-192
  */
 
 // Require the bootstrap

@@ -5,7 +5,7 @@
  * The object returned will contain the file name, MIME type, metadata 
  * (obtained from x-dropbox-metadata HTTP header) and file contents
  * @link https://www.dropbox.com/developers/reference/api#files-GET
- * @link https://github.com/BenTheDesigner/Dropbox/blob/master/Dropbox/API.php#L112-151
+ * @link https://github.com/BenTheDesigner/Dropbox/blob/master/Dropbox/API.php#L129-168
  */
 
 // Require the bootstrap
