@@ -33,6 +33,12 @@ abstract class ConsumerAbstract
 	protected $outFile = null;
 	
 	/**
+	 * Input file handle
+	 * @var null|resource
+	 */
+	protected $inFile = null;
+	
+	/**
 	 * Authenticate using 3-legged OAuth flow, firstly
 	 * checking we don't already have tokens to use
 	 * @return void
@@ -244,6 +250,18 @@ abstract class ConsumerAbstract
 			throw new \Dropbox\Exception('Outfile must be a stream resource');
 		}
 		$this->outFile = $handle;
+	}
+	
+	/**
+	 * Set the input file
+	 * @return void
+	 */
+	public function setInFile($handle)
+	{
+		if(!is_resource($handle) || get_resource_type($handle) != 'stream'){
+			throw new \Dropbox\Exception('Infile must be a stream resource');
+		}
+		$this->inFile = $handle;
 	}
 	
 	/**

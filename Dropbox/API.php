@@ -78,7 +78,7 @@ class API
 	}
 	
 	/**
-	 * Uploads a file
+	 * Uploads a physical file from disk
 	 * Dropbox impose a 150MB limit to files uploaded via the API. If the file
 	 * exceeds this limit or does not exist, an Exception will be thrown
 	 * @param string $file Absolute path to the file to be uploaded
@@ -107,6 +107,23 @@ class API
 		
 		// Throw an Exception if the file does not exist
 		throw new Exception('Local file ' . $file . ' does not exist');
+	}
+	
+	/**
+	 * Uploads file data from a stream
+	 * Note: This function is experimental and requires further testing
+	 * @todo Add filesize check and overwrite parameter
+	 * @param resource $stream A readable stream created using fopen()
+	 * @param string $filename The destination filename of the uploaded file
+	 * @return array
+	 */
+	public function putStream($stream, $filename)
+	{
+		$this->OAuth->setInFile($stream);
+		$path = $this->encodePath($filename);
+		$call = 'files_put/' . $this->root . '/' . $path;
+		$response = $this->fetch('PUT', self::CONTENT_URL, $call);
+		return $response;
 	}
 	
 	/**
