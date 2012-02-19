@@ -133,7 +133,6 @@ class Curl extends ConsumerAbstract
 		$code = $matches[1];
         
 		// Parse the remaining headers into an associative array
-		// Note: Headers are not returned at present, but may be useful
 		$headers = array();
 		foreach ($lines as $line){
 			list($k, $v) = explode(': ', $line, 2);
