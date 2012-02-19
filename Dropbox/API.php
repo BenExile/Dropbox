@@ -112,17 +112,19 @@ class API
 	/**
 	 * Uploads file data from a stream
 	 * Note: This function is experimental and requires further testing
-	 * @todo Add filesize check and overwrite parameter
+	 * @todo Add filesize check
 	 * @param resource $stream A readable stream created using fopen()
-	 * @param string $filename The destination filename of the uploaded file
+	 * @param string $filename The destination filename, including path
+	 * @param boolean $overwrite Should the file be overwritten? (Default: true)
 	 * @return array
 	 */
-	public function putStream($stream, $filename)
+	public function putStream($stream, $filename, $overwrite = true)
 	{
 		$this->OAuth->setInFile($stream);
 		$path = $this->encodePath($filename);
 		$call = 'files_put/' . $this->root . '/' . $path;
-		$response = $this->fetch('PUT', self::CONTENT_URL, $call);
+		$params = array('overwrite' => (int) $overwrite);
+		$response = $this->fetch('PUT', self::CONTENT_URL, $call, $params);
 		return $response;
 	}
 	
