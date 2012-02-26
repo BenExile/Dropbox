@@ -1,3 +1,7 @@
+### Beta methods
+
+Dropbox limit the use of [beta methods][] to apps with development status. Whilst it is possible to use a development app in production, these methods are subject to change or instability, and it is advised that you do not use these calls in a production environment.
+
 ### Introduction
 
 This repository contains a PHP SDK that provides access to the [Dropbox REST API][].
@@ -24,6 +28,7 @@ If you'd like to show your support, [donations][] of alcoholic beverages are muc
 
 [![endorse](http://api.coderwall.com/benthedesigner/endorsecount.png)](http://coderwall.com/benthedesigner) 
 
+[beta methods]: https://www.dropbox.com/developers/reference/api#beta
 [Dropbox REST API]: https://www.dropbox.com/developers/reference/api
 [PSR-0 standard]: https://github.com/php-fig/fig-standards/blob/master/accepted/PSR-0.md
 [MIT License]: https://github.com/BenTheDesigner/Dropbox/blob/master/mit-license.md
