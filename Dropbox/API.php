@@ -383,6 +383,7 @@ class API
 	 * Creates and returns a copy_ref to a file
 	 * This reference string can be used to copy that file to another user's
 	 * Dropbox by passing it in as the from_copy_ref parameter on /fileops/copy
+	 * @param $path File for which ref should be created, relative to root
 	 * @return array
 	 */
 	public function copyRef($path)
