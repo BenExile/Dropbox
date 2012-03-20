@@ -245,6 +245,8 @@ class API
 	
 	/**
 	 * Creates and returns a shareable link to files or folders
+	 * The link returned is for a preview page from which the user an choose to
+	 * download the file if they wish. For direct download links, see media().
 	 * @param string $path The path to the file/folder you want a sharable link to
 	 * @return object stdClass
 	 */
