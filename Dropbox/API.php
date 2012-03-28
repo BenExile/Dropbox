@@ -335,8 +335,8 @@ class API
 	}
 	
 	/**
-	 * Copies a file or folder to a new location
-	 * @param string $from File or folder to be copied, relative to root
+	 * Copies a file or folder from a copy_ref to a new location
+	 * @param string $copyRef A copy referance string for the file you want to copy
 	 * @param string $to Destination path, relative to root
 	 * @return object stdClass
 	 */
