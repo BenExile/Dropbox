@@ -285,6 +285,18 @@ class API
 	}
 	
 	/**
+	 * Returns a copy reference string for a file
+	 * @param string $path The path to the media file you want a copy reference string to
+	 * @return object stdClass
+	 */
+	public function getCopyRef($path)
+	{
+		$call = 'copy_ref/' . $this->root . '/' . $this->encodePath($path);
+		$response = $this->fetch('GET', self::API_URL, $call);
+		return $response;
+	}
+	
+	/**
 	 * Gets a thumbnail for an image
 	 * @param string $file The path to the image you wish to thumbnail
 	 * @param string $format The thumbnail format, either JPEG or PNG
@@ -354,6 +366,24 @@ class API
 			$params['from_copy_ref'] = $fromCopyRef;
 		}
 		
+		$response = $this->fetch('POST', self::API_URL, $call, $params);
+		return $response;
+	}
+	
+	/**
+	 * Copies a file or folder from a copy_ref to a new location
+	 * @param string $copyRef A copy referance string for the file you want to copy
+	 * @param string $to Destination path, relative to root
+	 * @return object stdClass
+	 */
+	public function copyRef($copyRef, $to)
+	{
+		$call = 'fileops/copy';
+		$params = array(
+			'root' => $this->root,
+			'from_copy_ref' => $from_copy_ref,
+			'to_path' => $this->normalisePath($to),
+		);
 		$response = $this->fetch('POST', self::API_URL, $call, $params);
 		return $response;
 	}
