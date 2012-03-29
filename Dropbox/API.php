@@ -337,6 +337,7 @@ class API
 	 * Copies a file or folder to a new location
 	 * @param string $from File or folder to be copied, relative to root
 	 * @param string $to Destination path, relative to root
+	 * @param null|string $fromCopyRef Must be used instead of the from_path
 	 * @return object stdClass
 	 */
 	public function copy($from, $to, $fromCopyRef = null)
@@ -346,8 +347,13 @@ class API
 			'root' => $this->root,
 			'from_path' => $this->normalisePath($from),
 			'to_path' => $this->normalisePath($to),
-			'from_copy_ref' => $fromCopyRef,
 		);
+		
+		if($fromCopyRef){
+			$params['from_path'] = null;
+			$params['from_copy_ref'] = $fromCopyRef;
+		}
+		
 		$response = $this->fetch('POST', self::API_URL, $call, $params);
 		return $response;
 	}
