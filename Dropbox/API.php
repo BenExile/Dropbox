@@ -194,6 +194,21 @@ class API
 	}
 	
 	/**
+	 * Return "delta entries", intructing you how to update
+	 * your application state to match the server's state
+	 * Important: This method does not make changes to the application state
+	 * @param null|string $cursor Used to keep track of your current state
+	 * @return array Array of delta entries
+	 */
+	public function delta($cursor = null)
+	{
+		$call = 'delta';
+		$params = array('cursor' => $cursor);
+		$response = $this->fetch('POST', self::API_URL, $call, $params);
+		return $response;
+	}
+	
+	/**
 	 * Obtains metadata for the previous revisions of a file
 	 * @param string Path to the file, relative to root
 	 * @param integer Number of revisions to return (1-1000)
@@ -305,6 +320,20 @@ class API
 	}
 	
 	/**
+	 * Creates and returns a copy_ref to a file
+	 * This reference string can be used to copy that file to another user's
+	 * Dropbox by passing it in as the from_copy_ref parameter on /fileops/copy
+	 * @param $path File for which ref should be created, relative to root
+	 * @return array
+	 */
+	public function copyRef($path)
+	{
+		$call = 'copy_ref/' . $this->root . '/' . $this->encodePath($path);
+		$response = $this->fetch('GET', self::API_URL, $call);
+		return $response;
+	}
+	
+	/**
 	 * Copies a file or folder to a new location
 	 * @param string $from File or folder to be copied, relative to root
 	 * @param string $to Destination path, relative to root
@@ -363,35 +392,6 @@ class API
 				'to_path' => $this->normalisePath($to),
 		);
 		$response = $this->fetch('POST', self::API_URL, $call, $params);
-		return $response;
-	}
-	
-	/**
-	 * Return "delta entries", intructing you how to update
-	 * your application state to match the server's state
-	 * Important: This method does not make changes to the application state
-	 * @param null|string $cursor Used to keep track of your current state
-	 * @return array Array of delta entries
-	 */
-	public function delta($cursor = null)
-	{
-		$call = 'delta_beta2';
-		$params = array('cursor' => $cursor);
-		$response = $this->fetch('POST', self::API_URL, $call, $params);
-		return $response;
-	}
-	
-	/**
-	 * Creates and returns a copy_ref to a file
-	 * This reference string can be used to copy that file to another user's
-	 * Dropbox by passing it in as the from_copy_ref parameter on /fileops/copy
-	 * @param $path File for which ref should be created, relative to root
-	 * @return array
-	 */
-	public function copyRef($path)
-	{
-		$call = 'copy_ref_beta/' . $this->root . '/' . $this->encodePath($path);
-		$response = $this->fetch('GET', self::API_URL, $call);
 		return $response;
 	}
 	
