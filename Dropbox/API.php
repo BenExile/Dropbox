@@ -339,13 +339,14 @@ class API
 	 * @param string $to Destination path, relative to root
 	 * @return object stdClass
 	 */
-	public function copy($from, $to)
+	public function copy($from, $to, $fromCopyRef = null)
 	{
 		$call = 'fileops/copy';
 		$params = array(
 			'root' => $this->root,
 			'from_path' => $this->normalisePath($from),
 			'to_path' => $this->normalisePath($to),
+			'from_copy_ref' => $fromCopyRef,
 		);
 		$response = $this->fetch('POST', self::API_URL, $call, $params);
 		return $response;
