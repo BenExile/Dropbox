@@ -1,7 +1,3 @@
-### Beta methods
-
-Dropbox limit the use of [beta methods][] to apps with development status. Whilst it is possible to use a development app in production, these methods are subject to change or instability, and it is advised that you do not use these calls in a production environment.
-
 ### Introduction
 
 This repository contains a PHP SDK that provides access to the [Dropbox REST API][].
