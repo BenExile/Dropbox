@@ -44,7 +44,10 @@ class API
 	
 	/**
 	 * Set the OAuth consumer object
+	 * See 'General Notes' at the link below for information on access type
+	 * @link https://www.dropbox.com/developers/reference/api
 	 * @param OAuth\Consumer $OAuth
+	 * @param string $root Dropbox app access type
 	 */
 	public function __construct(OAuth\Consumer\ConsumerAbstract $OAuth, $root = 'sandbox')
 	{
