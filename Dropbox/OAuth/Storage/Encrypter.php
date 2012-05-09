@@ -66,6 +66,11 @@ class Encrypter
 		$iv = substr($cipherText, 0, self::IV_SIZE);
 		$cipherText = substr($cipherText, self::IV_SIZE);
 		$data = mcrypt_decrypt(self::CIPHER, $this->key, $cipherText, self::MODE, $iv);
-		return unserialize($data);
+		$token = @unserialize($data);
+		if($token === false){ // Unserialize fails if $token is boolean false
+			throw new \Dropbox\Exception('Failed to unserialize token');
+		} else {
+			return $token;
+		}
 	}
 }
