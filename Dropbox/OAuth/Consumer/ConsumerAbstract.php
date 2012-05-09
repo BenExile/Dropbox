@@ -97,9 +97,9 @@ abstract class ConsumerAbstract
 	
 		// Prepare request parameters
 		$params = array(
-				'oauth_token' => $token->oauth_token,
-				'oauth_token_secret' => $token->oauth_token_secret,
-				'oauth_callback' => $this->callback,
+			'oauth_token' => $token->oauth_token,
+			'oauth_token_secret' => $token->oauth_token_secret,
+			'oauth_callback' => $this->callback,
 		);
 	
 		// Build the URL and redirect the user
