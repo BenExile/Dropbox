@@ -1,7 +1,8 @@
 <?php
 
 /**
- * OAuth storage handler using PHP PDO
+ * OAuth storage handler built on PDO
+ * Note: This handler works but needs refactoring
  * @author Ben Tadiar <ben@handcraftedbyben.co.uk>
  * @link https://github.com/benthedesigner/dropbox
  * @package Dropbox\Oauth
@@ -33,11 +34,20 @@ class DB extends Session
 	 * set the authenticated user ID
 	 * @param Encrypter $encrypter
 	 * @param int $userID
-	 * @return void
+	 * @throws \Dropbox\Exception
 	 */
 	public function __construct(Encrypter $encrypter = null, $userID)
 	{
+		// Throw an Exception if PDO is not loaded
+		if(!extension_loaded('PDO')){
+			throw new \Dropbox\Exception('This storage handler requires the PDO extension');
+		}
+		
+		// Construct the parent object so we can access the SESSION
+		// instead of querying the database on every request
 		parent::__construct($encrypter);
+		
+		// Set the authenticated user ID
 		$this->userID = $userID;
 	}
 	
