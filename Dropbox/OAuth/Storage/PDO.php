@@ -10,9 +10,8 @@
  * @subpackage Storage
  */
 namespace Dropbox\OAuth\Storage;
-use \PDO as PDO;
 
-class DB extends Session
+class PDO extends Session
 {
 	/**
 	 * Authenticated user ID
@@ -25,9 +24,9 @@ class DB extends Session
 	 * @var array
 	 */
 	private $options = array(
-		PDO::MYSQL_ATTR_INIT_COMMAND => 'SET NAMES utf8',
-		PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
-		PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
+		\PDO::MYSQL_ATTR_INIT_COMMAND => 'SET NAMES utf8',
+		\PDO::ATTR_ERRMODE => \PDO::ERRMODE_EXCEPTION,
+		\PDO::ATTR_DEFAULT_FETCH_MODE => \PDO::FETCH_ASSOC,
 	);
 	
 	/**
@@ -65,7 +64,7 @@ class DB extends Session
 	public function connect($host, $db, $user, $pass)
 	{
 		$dsn = 'mysql:host=' . $host . ';dbname=' . $db;
-		$this->pdo = new PDO($dsn, $user, $pass, $this->options);
+		$this->pdo = new \PDO($dsn, $user, $pass, $this->options);
 	}
 	
 	/**

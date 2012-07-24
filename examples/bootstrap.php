@@ -40,9 +40,9 @@ $storage = new \Dropbox\OAuth\Storage\Session($encrypter);
 
 // Instantiate the persistent data store and connect
 // Note: If you use this, comment out line 39
-// $userID = 1; // User ID assigned by your auth system
-// $storage = new \Dropbox\OAuth\Storage\DB($encrypter, $userID);
-// $storage->connect('host', 'db', 'user', 'pass');
+//$userID = 1; // User ID assigned by your auth system
+//$storage = new \Dropbox\OAuth\Storage\PDO($encrypter, $userID);
+//$storage->connect('host', 'db', 'username', 'password');
 
 $OAuth = new \Dropbox\OAuth\Consumer\Curl($key, $secret, $storage, $callback);
 $dropbox = new \Dropbox\API($OAuth);
