@@ -31,6 +31,12 @@ class DB extends Session
 	);
 	
 	/**
+	 * Forward-declare PDO object
+	 * @var null|PDO
+	 */
+	private $pdo = null;
+	
+	/**
 	 * Construct the parent object and
 	 * set the authenticated user ID
 	 * @param Encrypter $encrypter
