@@ -2,7 +2,8 @@
 
 /**
  * OAuth storage handler built on PDO
- * Note: This handler works but needs refactoring
+ * @todo Add table creation script
+ * @todo Database fallback?
  * @author Ben Tadiar <ben@handcraftedbyben.co.uk>
  * @link https://github.com/benthedesigner/dropbox
  * @package Dropbox\Oauth
