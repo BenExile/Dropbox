@@ -35,7 +35,7 @@ $userID = 1;
 $storage = new \Dropbox\OAuth\Storage\PDO($encrypter, $userID);
 
 // Connect to your datasource
-$storage->connect('localhost', 'dropbox', 'root', 'hall0000');
+$storage->connect('hostname', 'db', 'username', 'password');
 ```
 
 #### 5. Instantiate the Consumer and API objects
