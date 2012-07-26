@@ -7,7 +7,8 @@ Replace the [placeholders][] in bootstrap.php with your new app key and secret.
 #### 3. Set up the Encrypter object
 This is optional (for development purposes) but it is advised that you use the Encrypter in production. OAuth access tokens should be handled sensitively and **never** in plain text.
 
-```// $key is a 32-byte encryption key (secret)
+```
+// $key is a 32-byte encryption key (secret)
 $key = 'XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX';
 $encrypter = new \Dropbox\OAuth\Storage\Encrypter($key);
 ```
@@ -18,14 +19,15 @@ OAuth tokens can currently be stored using one of 2 methods:
 >**PHP Sessions**
 Tokens will be obtained on a per session basis. This storage handler can be used in cases where there are no user accounts to associate tokens with:
 
->```// Create the storage object, passing it the Encrypter object
+```
+// Create the storage object, passing it the Encrypter object
 $storage = new \Dropbox\OAuth\Storage\Session($encrypter);
 ```
 
 >**Database (PDO)**
 Tokens will be stored in a database. This handler plugs into existing authentication systems using user ID's already present. It does not provide user registration/management functionality:
 
->```// Authenticated user ID (stored in SESSION, for example)
+```// Authenticated user ID (stored in SESSION, for example)
 $userID = 1;
 // Instantiate the storage handler, passing it the Encrypter and user ID
 $storage = new \Dropbox\OAuth\Storage\PDO($encrypter, $userID);
