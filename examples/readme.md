@@ -40,7 +40,8 @@ $storage->connect('localhost', 'dropbox', 'root', 'hall0000');
 
 #### 5. Instantiate the Consumer and API objects
 
-```$OAuth = new \Dropbox\OAuth\Consumer\Curl($key, $secret, $storage, $callback);
+```
+$OAuth = new \Dropbox\OAuth\Consumer\Curl($key, $secret, $storage, $callback);
 $dropbox = new \Dropbox\API($OAuth);
 ```
 
