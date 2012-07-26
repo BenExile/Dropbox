@@ -27,10 +27,13 @@ $storage = new \Dropbox\OAuth\Storage\Session($encrypter);
 >**Database (PDO)**
 Tokens will be stored in a database. This handler plugs into existing authentication systems using user ID's already present. It does not provide user registration/management functionality:
 
-```// Authenticated user ID (stored in SESSION, for example)
+```
+// Authenticated user ID (stored in SESSION, for example)
 $userID = 1;
+
 // Instantiate the storage handler, passing it the Encrypter and user ID
 $storage = new \Dropbox\OAuth\Storage\PDO($encrypter, $userID);
+
 // Connect to your datasource
 $storage->connect('localhost', 'dropbox', 'root', 'hall0000');
 ```
