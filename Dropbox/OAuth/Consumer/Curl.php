@@ -23,7 +23,7 @@ class Curl extends ConsumerAbstract
 		CURLOPT_HEADER         => true,
 		CURLINFO_HEADER_OUT    => false,
 		CURLOPT_RETURNTRANSFER => true,
-		CURLOPT_FOLLOWLOCATION => true,
+		CURLOPT_FOLLOWLOCATION => false,
 	);
 	
 	/**
