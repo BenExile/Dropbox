@@ -15,13 +15,13 @@ class Session implements StorageInterface
 	 * Session namespace
 	 * @var string
 	 */
-	private $namespace = 'dropbox_api';
+	protected $namespace = 'dropbox_api';
 	
 	/**
 	 * Encyption object
 	 * @var Encrypter|null
 	 */
-	private $encrypter = null;
+	protected $encrypter = null;
 	
 	/**
 	 * Check if a session has been started and if an instance
@@ -61,10 +61,7 @@ class Session implements StorageInterface
 			throw new \Dropbox\Exception("Expected a type of either 'request_token' or 'access_token', got '$type'");
 		} else {
 			if(isset($_SESSION[$this->namespace][$type])){
-				$token = $_SESSION[$this->namespace][$type];
-				if($this->encrypter instanceof Encrypter){
-					return $this->encrypter->decrypt($token);
-				}
+				$token = $this->decrypt($_SESSION[$this->namespace][$type]);
 				return $token;
 			}
 			return false;
@@ -82,10 +79,34 @@ class Session implements StorageInterface
 		if($type != 'request_token' && $type != 'access_token'){
 			throw new \Dropbox\Exception("Expected a type of either 'request_token' or 'access_token', got '$type'");
 		} else {
-			if($this->encrypter instanceof Encrypter){
-				$token = $this->encrypter->encrypt($token);
-			}
+			$token = $this->encrypt($token);
 			$_SESSION[$this->namespace][$type] = $token;
 		}
+	}
+	
+	/**
+	 * Use the Encrypter to encrypt a token
+	 * @param stdClass $token OAuth token to encrypt
+	 * @return stdClass|string
+	 */
+	protected function encrypt($token)
+	{
+		if($this->encrypter instanceof Encrypter){
+			$token = $this->encrypter->encrypt($token);
+		}
+		return $token;
+	}
+	
+	/**
+	 * Decrypt a token using the Encrypter object
+	 * @param stdClass $token OAuth token to encrypt
+	 * @return stdClass|string
+	 */
+	protected function decrypt($token)
+	{
+		if($this->encrypter instanceof Encrypter){
+			$token = $this->encrypter->decrypt($token);
+		}
+		return $token;
 	}
 }

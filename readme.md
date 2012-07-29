@@ -9,6 +9,7 @@ Unless otherwise stated, all components of the SDK are licensed under the [MIT L
 * PHP >= 5.3.1
 * [PHP cURL][] (\Dropbox\OAuth\Consumer\Curl)
 * [PHP Mcrypt][] (\Dropbox\OAuth\Storage\Encrypter)
+* [PHP PDO][] (\Dropbox\OAuth\Storage\DB)
 
 ### Known Issues
 
@@ -30,6 +31,7 @@ If you'd like to show your support, [donations][] of alcoholic beverages are muc
 [MIT License]: https://github.com/BenTheDesigner/Dropbox/blob/master/mit-license.md
 [PHP cURL]: http://www.php.net/manual/en/book.curl.php
 [PHP Mcrypt]: http://php.net/manual/en/book.mcrypt.php
+[PHP PDO]: http://php.net/manual/en/book.pdo.php
 [PHP Bug #48962]: https://bugs.php.net/bug.php?id=48962
 [examples provided]: https://github.com/BenTheDesigner/Dropbox/tree/master/examples
 [donations]: https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=YQJX52Q6S54HA
