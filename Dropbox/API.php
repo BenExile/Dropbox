@@ -63,7 +63,7 @@ class API
 	*/
 	public function setRoot($root)
 	{
-		if($root !== 'sandbox' && $root !== 'dropbox'){
+		if ($root !== 'sandbox' && $root !== 'dropbox') {
 			throw new Exception("Expected a root of either 'dropbox' or 'sandbox', got '$root'");
 		} else {
 			$this->root = $root;
@@ -92,8 +92,8 @@ class API
 	 */
 	public function putFile($file, $filename = false, $path = '', $overwrite = true)
 	{
-		if(file_exists($file)){
-			if(filesize($file) <= 157286400){
+		if (file_exists($file)) {
+			if (filesize($file) <= 157286400) {
 				$call = 'files/' . $this->root . '/' . $this->encodePath($path);
 				// If no filename is provided we'll use the original filename
 				$filename = (is_string($filename)) ? $filename : basename($file);
@@ -142,14 +142,14 @@ class API
 	public function getFile($file, $outFile = false, $revision = null)
 	{
 		// Only allow php response format for this call
-		if($this->responseFormat !== 'php'){
+		if ($this->responseFormat !== 'php') {
 			throw new Exception('This method only supports the `php` response format');
 		}
 		
 		$handle = null;
-		if($outFile !== false){
+		if ($outFile !== false) {
 			// Create a file handle if $outFile is specified
-			if(!$handle = fopen($outFile, 'w')){
+			if (!$handle = fopen($outFile, 'w')) {
 				throw new Exception("Unable to open file handle for $outFile");
 			} else {
 				$this->OAuth->setOutFile($handle);
@@ -162,7 +162,7 @@ class API
 		$response = $this->fetch('GET', self::CONTENT_URL, $call, $params);
 		
 		// Close the file handle if one was opened
-		if($handle) fclose($handle);
+		if ($handle) fclose($handle);
 
 		return array(
 			'name' => ($outFile) ? $outFile : basename($file),
@@ -297,18 +297,18 @@ class API
 	public function thumbnails($file, $format = 'JPEG', $size = 'small')
 	{
 		// Only allow php response format for this call
-		if($this->responseFormat !== 'php'){
+		if ($this->responseFormat !== 'php') {
 			throw new Exception('This method only supports the `php` response format');
 		}
 		
 		$format = strtoupper($format);
 		// If $format is not 'PNG', default to 'JPEG'
-		if($format != 'PNG') $format = 'JPEG';
+		if ($format != 'PNG') $format = 'JPEG';
 		
 		$size = strtolower($size);
 		$sizes = array('s', 'm', 'l', 'xl', 'small', 'medium', 'large');
 		// If $size is not valid, default to 'small'
-		if(!in_array($size, $sizes)) $size = 'small';
+		if (!in_array($size, $sizes)) $size = 'small';
 		
 		$call = 'thumbnails/' . $this->root . '/' . $this->encodePath($file);
 		$params = array('format' => $format, 'size' => $size);
@@ -352,7 +352,7 @@ class API
 			'to_path' => $this->normalisePath($to),
 		);
 		
-		if($fromCopyRef){
+		if ($fromCopyRef) {
 			$params['from_path'] = null;
 			$params['from_copy_ref'] = $fromCopyRef;
 		}
@@ -419,7 +419,7 @@ class API
 		$response = $this->OAuth->fetch($method, $url, $call, $params);
 		
 		// Format the response and return
-		switch($this->responseFormat){
+		switch ($this->responseFormat) {
 			case 'json':
 				return json_encode($response);
 			case 'jsonp':
@@ -438,7 +438,7 @@ class API
 	public function setResponseFormat($format)
 	{
 		$format = strtolower($format);
-		if(!in_array($format, array('php', 'json', 'jsonp'))){
+		if (!in_array($format, array('php', 'json', 'jsonp'))) {
 			throw new Exception("Expected a format of php, json or jsonp, got '$format'");
 		} else {
 			$this->responseFormat = $format;
@@ -464,9 +464,11 @@ class API
 	 */
 	private function getMimeType($data, $isFilename = false)
 	{
-		if(extension_loaded('fileinfo')){
+		if (extension_loaded('fileinfo')) {
 			$finfo = new \finfo(FILEINFO_MIME);
-			if($isFilename !== false) return $finfo->file($data);
+			if ($isFilename !== false) {
+				return $finfo->file($data);
+			}
 			return $finfo->buffer($data);
 		}
 		return false;

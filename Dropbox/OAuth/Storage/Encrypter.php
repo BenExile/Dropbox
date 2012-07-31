@@ -32,9 +32,9 @@ class Encrypter
 	 */
 	public function __construct($key)
 	{
-		if(!extension_loaded('mcrypt')){
+		if (!extension_loaded('mcrypt')) {
 			throw new \Dropbox\Exception('The storage encrypter requires the MCrypt extension');
-		} elseif(($length = mb_strlen($key, '8bit')) !== self::KEY_SIZE){
+		} elseif (($length = mb_strlen($key, '8bit')) !== self::KEY_SIZE) {
 			throw new \Dropbox\Exception('Expecting a ' .  self::KEY_SIZE . ' byte key, got ' . $length);
 		} else {
 			// Set the encryption key
@@ -67,7 +67,7 @@ class Encrypter
 		$cipherText = substr($cipherText, self::IV_SIZE);
 		$data = mcrypt_decrypt(self::CIPHER, $this->key, $cipherText, self::MODE, $iv);
 		$token = @unserialize($data);
-		if($token === false){ // Unserialize fails if $token is boolean false
+		if ($token === false) {
 			throw new \Dropbox\Exception('Failed to unserialize token');
 		} else {
 			return $token;

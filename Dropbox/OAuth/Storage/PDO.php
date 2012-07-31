@@ -45,7 +45,7 @@ class PDO extends Session
 	public function __construct(Encrypter $encrypter = null, $userID)
 	{
 		// Throw an Exception if PDO is not loaded
-		if(!extension_loaded('PDO')){
+		if (!extension_loaded('PDO')) {
 			throw new \Dropbox\Exception('This storage handler requires the PDO extension');
 		}
 		
@@ -76,17 +76,17 @@ class PDO extends Session
 	 */
 	public function get($type)
 	{
-		if($type != 'request_token' && $type != 'access_token'){
+		if ($type != 'request_token' && $type != 'access_token') {
 			throw new \Dropbox\Exception("Expected a type of either 'request_token' or 'access_token', got '$type'");
-		} elseif($type == 'request_token') {
+		} elseif ($type == 'request_token') {
 			return parent::get($type);
-		} elseif($token = parent::get($type)) {
+		} elseif ($token = parent::get($type)) {
 			return $token;
 		} else {
 			$query = 'SELECT token FROM oauth_tokens WHERE userID = ? LIMIT 1';
 			$stmt = $this->pdo->prepare($query);
 			$stmt->execute(array($this->userID));
-			if($result = $stmt->fetch()){
+			if ($result = $stmt->fetch()) {
 				$token = $this->decrypt($result['token']);
 				$_SESSION[$this->namespace][$type] = $result['token'];
 				return $token;
@@ -102,9 +102,9 @@ class PDO extends Session
 	 */
 	public function set($token, $type)
 	{
-		if($type != 'request_token' && $type != 'access_token'){
+		if ($type != 'request_token' && $type != 'access_token') {
 			throw new \Dropbox\Exception("Expected a type of either 'request_token' or 'access_token', got '$type'");
-		} elseif($type == 'request_token') {
+		} elseif ($type == 'request_token') {
 			parent::set($token, $type);
 		} else {
 			$query = 'INSERT INTO oauth_tokens (userID, token) VALUES (?, ?)';

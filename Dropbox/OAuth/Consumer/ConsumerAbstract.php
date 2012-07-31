@@ -45,8 +45,8 @@ abstract class ConsumerAbstract
 	 */
 	protected function authenticate()
 	{
-		if((!$this->storage->get('access_token'))){
-			if(!isset($_GET['uid'], $_GET['oauth_token'])){
+		if ((!$this->storage->get('access_token'))) {
+			if (!isset($_GET['uid'], $_GET['oauth_token'])) {
 				$this->getRequestToken();
 				$this->authorise();
 			} else {
@@ -79,7 +79,7 @@ abstract class ConsumerAbstract
 	private function authorise()
 	{
 		// Only redirect if using CLI
-		if (PHP_SAPI !== 'cli'){
+		if (PHP_SAPI !== 'cli') {
 			$url = $this->getAuthoriseUrl();
 			header('Location: ' . $url);
 			exit;
@@ -131,8 +131,8 @@ abstract class ConsumerAbstract
 	 */
 	private function getToken()
 	{
-		if(!$token = $this->storage->get('access_token')){
-			if(!$token = $this->storage->get('request_token')){
+		if (!$token = $this->storage->get('access_token')) {
+			if (!$token = $this->storage->get('request_token')) {
 				$token = new \stdClass();
 				$token->oauth_token = null;
 				$token->oauth_token_secret = null;
@@ -171,11 +171,11 @@ abstract class ConsumerAbstract
 	
 		// URL encode each parameter to RFC3986 for use in the base string
 		$encoded = array();
-		foreach($params as $param => $value){
-			if($value !== null){
+		foreach($params as $param => $value) {
+			if ($value !== null) {
 				// If the value is a file upload (prefixed with @), replace it with
 				// the destination filename, the file path will be sent in POSTFIELDS
-				if($value[0] === '@') $value = $params['filename'];
+				if ($value[0] === '@') $value = $params['filename'];
 				$encoded[] = $this->encode($param) . '=' . $this->encode($value);
 			} else {
 				unset($params[$param]);
@@ -197,6 +197,7 @@ abstract class ConsumerAbstract
 		
 		// Build the signed request URL
 		$query = '?' . http_build_query($params, '', '&');
+		
 		return array(
 			'url' => $url . $call . $query,
 			'postfields' => $params,
@@ -210,7 +211,7 @@ abstract class ConsumerAbstract
 	 */
 	private function getSignature($base, $key)
 	{
-		switch($this->sigMethod){
+		switch ($this->sigMethod) {
 			case 'PLAINTEXT':
 				$signature = $key;
 				break;
@@ -230,7 +231,8 @@ abstract class ConsumerAbstract
 	public function setSignatureMethod($method)
 	{
 		$method = strtoupper($method);
-		switch($method){
+		
+		switch ($method) {
 			case 'PLAINTEXT':
 			case 'HMAC-SHA1':
 				$this->sigMethod = $method;
@@ -246,7 +248,7 @@ abstract class ConsumerAbstract
 	 */
 	public function setOutFile($handle)
 	{
-		if(!is_resource($handle) || get_resource_type($handle) != 'stream'){
+		if (!is_resource($handle) || get_resource_type($handle) != 'stream') {
 			throw new \Dropbox\Exception('Outfile must be a stream resource');
 		}
 		$this->outFile = $handle;
@@ -258,7 +260,7 @@ abstract class ConsumerAbstract
 	 */
 	public function setInFile($handle)
 	{
-		if(!is_resource($handle) || get_resource_type($handle) != 'stream'){
+		if (!is_resource($handle) || get_resource_type($handle) != 'stream') {
 			throw new \Dropbox\Exception('Infile must be a stream resource');
 		}
 		fseek($handle, 0);
@@ -277,7 +279,7 @@ abstract class ConsumerAbstract
 	{
 		$parts = explode('&', $response);
 		$token = new \stdClass();
-		foreach($parts as $part){
+		foreach ($parts as $part) {
 			list($k, $v) = explode('=', $part, 2);
 			$k = strtolower($k);
 			$token->$k = $v;

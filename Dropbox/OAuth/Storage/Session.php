@@ -24,16 +24,17 @@ class Session implements StorageInterface
 	protected $encrypter = null;
 	
 	/**
-	 * Check if a session has been started and if an instance
-	 * of the encrypter is passed, set the encryption object
+	 * Check if a session has been started (start one where appropriate)
+	 * and if an instance of the encrypter is passed, set the encryption object
 	 * @return void
 	 */
 	public function __construct(Encrypter $encrypter = null)
 	{
-		$id = session_id();
-		if(empty($id)) session_start();
+		if (empty(session_id())) {
+			session_start();	
+		}
 		
-		if($encrypter instanceof Encrypter){
+		if ($encrypter instanceof Encrypter) {
 			$this->encrypter = $encrypter;
 		}
 	}
@@ -57,10 +58,10 @@ class Session implements StorageInterface
 	 */
 	public function get($type)
 	{
-		if($type != 'request_token' && $type != 'access_token'){
+		if ($type != 'request_token' && $type != 'access_token') {
 			throw new \Dropbox\Exception("Expected a type of either 'request_token' or 'access_token', got '$type'");
 		} else {
-			if(isset($_SESSION[$this->namespace][$type])){
+			if (isset($_SESSION[$this->namespace][$type])) {
 				$token = $this->decrypt($_SESSION[$this->namespace][$type]);
 				return $token;
 			}
@@ -76,7 +77,7 @@ class Session implements StorageInterface
 	 */
 	public function set($token, $type)
 	{
-		if($type != 'request_token' && $type != 'access_token'){
+		if ($type != 'request_token' && $type != 'access_token') {
 			throw new \Dropbox\Exception("Expected a type of either 'request_token' or 'access_token', got '$type'");
 		} else {
 			$token = $this->encrypt($token);
@@ -91,7 +92,7 @@ class Session implements StorageInterface
 	 */
 	protected function encrypt($token)
 	{
-		if($this->encrypter instanceof Encrypter){
+		if ($this->encrypter instanceof Encrypter) {
 			$token = $this->encrypter->encrypt($token);
 		}
 		return $token;
@@ -104,7 +105,7 @@ class Session implements StorageInterface
 	 */
 	protected function decrypt($token)
 	{
-		if($this->encrypter instanceof Encrypter){
+		if ($this->encrypter instanceof Encrypter) {
 			$token = $this->encrypter->decrypt($token);
 		}
 		return $token;
