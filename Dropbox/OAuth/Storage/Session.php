@@ -30,7 +30,9 @@ class Session implements StorageInterface
      */
     public function __construct(Encrypter $encrypter = null)
     {
-        if (empty(session_id())) {
+        $id = session_id();
+        
+        if (empty($id)) {
             session_start();    
         }
         
