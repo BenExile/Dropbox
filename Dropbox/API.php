@@ -132,6 +132,53 @@ class API
     }
     
     /**
+     * Uploads large files to Dropbox in mulitple chunks
+     * Note: This method is subject to change and, as such, should not be used in production
+     * @todo Handle error on failed chunk upload
+     * @todo Add mechanism to specify chunk size
+     * @param string $file Absolute path to the file to be uploaded
+     * @param string|bool $filename The destination filename of the uploaded file
+     * @param string $path Path to upload the file to, relative to root
+     * @param boolean $overwrite Should the file be overwritten? (Default: true)
+     * @return stdClass
+     */
+    public function chunkedUpload($file, $filename = false, $path = '', $overwrite = true)
+    {
+        if (file_exists($file)) {
+            $offset = 0;
+            $chunkSize = 4194304; // 4MB chunk size
+            $handle = fopen($file, 'r');
+            
+            // Open a second file handle to write chunked data to
+            $chunkHandle = fopen('php://temp', 'rw');
+            
+            // Read from the file handle until EOF, uploading each chunk
+            while($data = fread($handle, $chunkSize)){
+                ftruncate($chunkHandle, 0);
+                fwrite($chunkHandle, $data);
+                $this->OAuth->setInFile($chunkHandle);
+                $uploadID = (isset($response['upload_id'])) ? $response['upload_id'] : null;
+                $params = array('upload_id' => $uploadID, 'offset' => $offset);
+                $response = $this->fetch('PUT', self::CONTENT_URL, 'chunked_upload', $params);
+                $offset += mb_strlen($data, '8bit');
+            }
+            
+            // Close the chunk handle
+            fclose($chunkHandle);
+            
+            // Complete the chunked upload
+            $filename = (is_string($filename)) ? $filename : basename($file);
+            $call = 'commit_chunked_upload/' . $this->root . '/' . $this->encodePath($path . $filename);
+            $params = array('overwrite' => (int) $overwrite, 'upload_id' => $response['upload_id']);
+            $response = $this->fetch('POST', self::CONTENT_URL, $call, $params);
+            return $response;
+        }
+        
+        // Throw an Exception if the file does not exist
+        throw new Exception('Local file ' . $file . ' does not exist');
+    }
+    
+    /**
      * Downloads a file
      * Returns the base filename, raw file data and mime type returned by Fileinfo
      * @param string $file Path to file, relative to root, including path
