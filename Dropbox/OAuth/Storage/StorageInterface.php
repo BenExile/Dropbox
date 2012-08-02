@@ -11,6 +11,16 @@ namespace Dropbox\OAuth\Storage;
 
 interface StorageInterface
 {
+    /**
+     * Get a token by type
+     * @param string $type Token type to retrieve
+     */
     public function get($type);
+    
+    /**
+     * Set a token by type
+     * @param \stdClass $token Token object to set
+     * @param string $type Token type
+     */
     public function set($token, $type);
 }

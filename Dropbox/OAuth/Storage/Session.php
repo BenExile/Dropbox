@@ -56,6 +56,7 @@ class Session implements StorageInterface
      * Get an OAuth token from the session
      * If the encrpytion object is set then
      * decrypt the token before returning
+     * @param string $type Token type to retrieve
      * @return array|bool
      */
     public function get($type)
@@ -75,6 +76,8 @@ class Session implements StorageInterface
      * Set an OAuth token in the session by type
      * If the encryption object is set then
      * encrypt the token before storing
+     * @param \stdClass Token object to set
+     * @param string $type Token type
      * @return void
      */
     public function set($token, $type)

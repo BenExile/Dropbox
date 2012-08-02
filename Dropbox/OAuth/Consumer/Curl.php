@@ -30,7 +30,7 @@ class Curl extends ConsumerAbstract
      * Set properties and begin authentication
      * @param string $key
      * @param string $secret
-     * @param StorageInterface $storage
+     * @param \Dropbox\OAuth\Consumer\StorageInterface $storage
      * @param string $callback
      */
     public function __construct($key, $secret, StorageInterface $storage, $callback = null)
@@ -53,7 +53,7 @@ class Curl extends ConsumerAbstract
      * @param string $method The HTTP method
      * @param string $url The API endpoint
      * @param string $call The API method to call
-     * @param array $params Additional parameters
+     * @param array $additional Additional parameters
      * @return string|object stdClass
      */
     public function fetch($method, $url, $call, array $additional = array())

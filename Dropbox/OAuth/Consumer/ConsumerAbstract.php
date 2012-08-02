@@ -145,6 +145,11 @@ abstract class ConsumerAbstract
      * Generate signed request URL
      * See inline comments for description
      * @link http://tools.ietf.org/html/rfc5849#section-3.4
+     * @param string $method HTTP request method
+     * @param string $url API endpoint to send the request to
+     * @param string $call API call to send
+     * @param array $additional Additional parameters as an associative array
+     * @return array
      */
     protected function getSignedRequest($method, $url, $call, array $additional = array())
     {
@@ -244,6 +249,7 @@ abstract class ConsumerAbstract
     
     /**
      * Set the output file
+     * @param resource Resource to stream response data to
      * @return void
      */
     public function setOutFile($handle)
@@ -256,6 +262,7 @@ abstract class ConsumerAbstract
     
     /**
      * Set the input file
+     * @param resource Resource to read data from
      * @return void
      */
     public function setInFile($handle)

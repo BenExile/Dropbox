@@ -38,7 +38,7 @@ class PDO extends Session
     /**
      * Construct the parent object and
      * set the authenticated user ID
-     * @param Encrypter $encrypter
+     * @param \Dropbox\OAuth\Storage\Encrypter $encrypter
      * @param int $userID
      * @throws \Dropbox\Exception
      */
@@ -59,6 +59,10 @@ class PDO extends Session
     
     /**
      * Connect to the database
+     * @param string $host Database server hostname
+     * @param string $db Database to connect to
+     * @param string $user Database username
+     * @param string $pass Database user password
      * @return void
      */
     public function connect($host, $db, $user, $pass)
@@ -72,6 +76,7 @@ class PDO extends Session
      * Request tokens are stored in the session, access tokens in the database
      * Once a token is retrieved it will be stored in the users session
      * for subsequent requests to reduce overheads
+     * @param string $type Token type to retrieve
      * @return array|bool
      */
     public function get($type)
@@ -98,6 +103,8 @@ class PDO extends Session
     /**
      * Set an OAuth token in the database or session (see below)
      * Request tokens are stored in the session, access tokens in the database
+     * @param \stdClass Token object to set
+     * @param string $type Token type
      * @return void
      */
     public function set($token, $type)
