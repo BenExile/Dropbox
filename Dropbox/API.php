@@ -43,6 +43,13 @@ class API
     private $callback = 'dropboxCallback';
     
     /**
+     * Chunk size used for chunked uploads
+     * @todo Provide setter method for chunk size
+     * @see \Dropbox\API::chunkedUpload()
+     */
+    private $chunkSize = 4194304;
+    
+    /**
      * Set the OAuth consumer object
      * See 'General Notes' at the link below for information on access type
      * @link https://www.dropbox.com/developers/reference/api
@@ -134,8 +141,6 @@ class API
     /**
      * Uploads large files to Dropbox in mulitple chunks
      * Note: This method is subject to change and, as such, should not be used in production
-     * @todo Handle error on failed chunk upload
-     * @todo Add mechanism to specify chunk size
      * @param string $file Absolute path to the file to be uploaded
      * @param string|bool $filename The destination filename of the uploaded file
      * @param string $path Path to upload the file to, relative to root
@@ -145,31 +150,33 @@ class API
     public function chunkedUpload($file, $filename = false, $path = '', $overwrite = true)
     {
         if (file_exists($file)) {
-            $offset = 0;
-            $chunkSize = 4194304; // 4MB chunk size
             $handle = fopen($file, 'r');
             
-            // Open a second file handle to write chunked data to
-            $chunkHandle = fopen('php://temp', 'rw');
+            // Set initial upload ID and offset
+            $uploadID = null;
+            $offset = 0;
             
             // Read from the file handle until EOF, uploading each chunk
-            while($data = fread($handle, $chunkSize)){
-                ftruncate($chunkHandle, 0);
+            while ($data = fread($handle, $this->chunkSize)) {
+            	$chunkHandle = fopen('php://temp', 'rw');
                 fwrite($chunkHandle, $data);
                 $this->OAuth->setInFile($chunkHandle);
-                $uploadID = (isset($response['upload_id'])) ? $response['upload_id'] : null;
+                
+                // On subsequent chunks, use the upload ID returned by the previous request
+                if (isset($response['body']->upload_id)) {
+                	$uploadID = $response['body']->upload_id;
+                }
+                
                 $params = array('upload_id' => $uploadID, 'offset' => $offset);
                 $response = $this->fetch('PUT', self::CONTENT_URL, 'chunked_upload', $params);
                 $offset += mb_strlen($data, '8bit');
+                fclose($chunkHandle);
             }
-            
-            // Close the chunk handle
-            fclose($chunkHandle);
             
             // Complete the chunked upload
             $filename = (is_string($filename)) ? $filename : basename($file);
             $call = 'commit_chunked_upload/' . $this->root . '/' . $this->encodePath($path . $filename);
-            $params = array('overwrite' => (int) $overwrite, 'upload_id' => $response['upload_id']);
+            $params = array('overwrite' => (int) $overwrite, 'upload_id' => $uploadID);
             $response = $this->fetch('POST', self::CONTENT_URL, $call, $params);
             return $response;
         }
