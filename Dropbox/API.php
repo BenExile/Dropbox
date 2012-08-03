@@ -150,35 +150,37 @@ class API
     public function chunkedUpload($file, $filename = false, $path = '', $overwrite = true)
     {
         if (file_exists($file)) {
-            $handle = fopen($file, 'r');
-            
-            // Set initial upload ID and offset
-            $uploadID = null;
-            $offset = 0;
-            
-            // Read from the file handle until EOF, uploading each chunk
-            while ($data = fread($handle, $this->chunkSize)) {
-            	$chunkHandle = fopen('php://temp', 'rw');
-                fwrite($chunkHandle, $data);
-                $this->OAuth->setInFile($chunkHandle);
-                
-                // On subsequent chunks, use the upload ID returned by the previous request
-                if (isset($response['body']->upload_id)) {
-                	$uploadID = $response['body']->upload_id;
-                }
-                
-                $params = array('upload_id' => $uploadID, 'offset' => $offset);
-                $response = $this->fetch('PUT', self::CONTENT_URL, 'chunked_upload', $params);
-                $offset += mb_strlen($data, '8bit');
-                fclose($chunkHandle);
+            if ($handle = @fopen($file, 'r')) {
+            	// Set initial upload ID and offset
+	            $uploadID = null;
+	            $offset = 0;
+	            
+	            // Read from the file handle until EOF, uploading each chunk
+	            while ($data = fread($handle, $this->chunkSize)) {
+	            	$chunkHandle = fopen('php://temp', 'rw');
+	                fwrite($chunkHandle, $data);
+	                $this->OAuth->setInFile($chunkHandle);
+	                
+	                // On subsequent chunks, use the upload ID returned by the previous request
+	                if (isset($response['body']->upload_id)) {
+	                	$uploadID = $response['body']->upload_id;
+	                }
+	                
+	                $params = array('upload_id' => $uploadID, 'offset' => $offset);
+	                $response = $this->fetch('PUT', self::CONTENT_URL, 'chunked_upload', $params);
+	                $offset += mb_strlen($data, '8bit');
+	                fclose($chunkHandle);
+	            }
+	            
+	            // Complete the chunked upload
+	            $filename = (is_string($filename)) ? $filename : basename($file);
+	            $call = 'commit_chunked_upload/' . $this->root . '/' . $this->encodePath($path . $filename);
+	            $params = array('overwrite' => (int) $overwrite, 'upload_id' => $uploadID);
+	            $response = $this->fetch('POST', self::CONTENT_URL, $call, $params);
+	            return $response;
+            } else {
+            	throw new Exception('Could not open ' . $file . ' for reading');
             }
-            
-            // Complete the chunked upload
-            $filename = (is_string($filename)) ? $filename : basename($file);
-            $call = 'commit_chunked_upload/' . $this->root . '/' . $this->encodePath($path . $filename);
-            $params = array('overwrite' => (int) $overwrite, 'upload_id' => $uploadID);
-            $response = $this->fetch('POST', self::CONTENT_URL, $call, $params);
-            return $response;
         }
         
         // Throw an Exception if the file does not exist
