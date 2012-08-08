@@ -44,7 +44,6 @@ class API
     
     /**
      * Chunk size used for chunked uploads
-     * @todo Provide setter method for chunk size
      * @see \Dropbox\API::chunkedUpload()
      */
     private $chunkSize = 4194304;
@@ -498,6 +497,22 @@ class API
             throw new Exception("Expected a format of php, json or jsonp, got '$format'");
         } else {
             $this->responseFormat = $format;
+        }
+    }
+    
+    /**
+     * Set the chunk size for chunked uploads
+     * If $chunkSize is empty, set to 4194304 bytes (4 MB)
+     * @see \Dropbox\API\chunkedUpload()
+     */
+    public function setChunkSize($chunkSize = 4194304)
+    {
+        if (!is_int($chunkSize)) {
+            throw new Exception('Expecting chunk size to be an integer, got ' . gettype($chunkSize));
+        } elseif ($chunkSize > 157286400) {
+            throw new Exception('Chunk size must not exceed 157286400 bytes, got ' . $chunkSize);
+        } else {
+            $this->chunkSize = $chunkSize;
         }
     }
     
