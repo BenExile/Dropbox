@@ -10,7 +10,7 @@ if (PHP_SAPI === 'cli') {
 	exit('bootstrap.php must not be run via the command line interface');
 }
 
-// Don't allow direct access to the boostrap
+// Don't allow direct access to the bootstrap
 if(basename($_SERVER['REQUEST_URI']) == 'bootstrap.php'){
 	exit('bootstrap.php does nothing on its own. Please see the examples provided');
 }
@@ -39,7 +39,7 @@ $encrypter = new \Dropbox\OAuth\Storage\Encrypter('XXXXXXXXXXXXXXXXXXXXXXXXXXXXX
 $storage = new \Dropbox\OAuth\Storage\Session($encrypter);
 
 // Instantiate the persistent data store and connect
-// Note: If you use this, comment out line 39
+// Note: If you use this, comment out line 39 and import oauth_tokens.sql to your database
 //$userID = 1; // User ID assigned by your auth system
 //$storage = new \Dropbox\OAuth\Storage\PDO($encrypter, $userID);
 //$storage->connect('host', 'db', 'username', 'password');
