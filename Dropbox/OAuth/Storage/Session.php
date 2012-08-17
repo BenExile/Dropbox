@@ -95,7 +95,9 @@ class Session implements StorageInterface
     }
     
     /**
-     * Use the Encrypter to encrypt a token
+     * Use the Encrypter to encrypt a token and return it
+     * If there is not encrypter object, return just the 
+     * serialized token object for storage
      * @param stdClass $token OAuth token to encrypt
      * @return stdClass|string
      */
@@ -114,7 +116,9 @@ class Session implements StorageInterface
     }
     
     /**
-     * Decrypt a token using the Encrypter object
+     * Decrypt a token using the Encrypter object and return it
+     * If there is no Encrypter object, assume the token was stored
+     * serialized and return the unserialized token object
      * @param stdClass $token OAuth token to encrypt
      * @return stdClass|string
      */
