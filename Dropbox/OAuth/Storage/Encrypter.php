@@ -12,7 +12,8 @@ namespace Dropbox\OAuth\Storage;
 
 class Encrypter
 {    
-    // Encryption settings
+    // Encryption settings - default settings yield encryption to AES (256-bit) standard
+    // @todo Provide PHPDOC for each class constant
     const CIPHER = MCRYPT_RIJNDAEL_128;
     const MODE = MCRYPT_MODE_CBC;
     const KEY_SIZE = 32;
