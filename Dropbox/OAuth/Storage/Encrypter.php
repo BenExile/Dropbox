@@ -57,7 +57,7 @@ class Encrypter
     /**
      * Decrypt the ciphertext
      * @param string $cipherText
-     * @return object \stdClass
+     * @return object \stdClass Unserialized token
      */
     public function decrypt($cipherText)
     {
