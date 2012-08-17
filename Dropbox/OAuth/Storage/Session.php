@@ -2,6 +2,10 @@
 
 /**
  * OAuth storage handler using PHP sessions
+ * This is a per session storage handler, meaning that you will need
+ * to authorise the Dropbox app if the session ends (browser is closed, 
+ * session times out etc). For persistent storage of OAuth tokens, 
+ * please use \Dropbox\OAuth\Storage\PDO as your storage handler
  * @author Ben Tadiar <ben@handcraftedbyben.co.uk>
  * @link https://github.com/benthedesigner/dropbox
  * @package Dropbox\Oauth
