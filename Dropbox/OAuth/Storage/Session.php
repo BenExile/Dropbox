@@ -97,9 +97,15 @@ class Session implements StorageInterface
      */
     protected function encrypt($token)
     {
+        // Serialize the token object
+        $token = serialize($token);
+        
+        // Encrypt the token if there is an Encrypter instance
         if ($this->encrypter instanceof Encrypter) {
             $token = $this->encrypter->encrypt($token);
         }
+        
+        // Return the token
         return $token;
     }
     
@@ -110,9 +116,12 @@ class Session implements StorageInterface
      */
     protected function decrypt($token)
     {
+        // Decrypt the token if there is an Encrypter instance
         if ($this->encrypter instanceof Encrypter) {
             $token = $this->encrypter->decrypt($token);
         }
-        return $token;
+        
+        // Return the unserialized token
+        return unserialize($token);
     }
 }
