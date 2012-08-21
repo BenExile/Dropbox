@@ -47,7 +47,7 @@ class Filesystem extends Session
         
         // Set the authenticated user ID
         $this->userID = $userID;
-        $this->userFilename = $this->sessionsFolder . '/' . $this->userFilename;
+        $this->userFilename = $this->sessionsFolder . '/' . $this->userID;
     }
     
     /**
@@ -68,8 +68,10 @@ class Filesystem extends Session
             return $token;
         } else {
             if(file_exists($this->userFilename)) {
-                $token = file_get_contents($this->userFilename);
-                return $this->decrypt($token);
+                $filecontent = file_get_contents($this->userFilename);
+                $_SESSION[$this->namespace][$type] = $filecontent;
+                $token = $this->decrypt($filecontent);
+                return $token;
             }
             return false;
         }
@@ -89,7 +91,9 @@ class Filesystem extends Session
         } elseif ($type == 'request_token') {
             parent::set($token, $type);
         } else {
-            file_put_contents($this->userFilename, $this->encrypt($token));
+            $token = $this->encrypt($token);
+            file_put_contents($this->userFilename, $token);
+            $_SESSION[$this->namespace][$type] = $token;
         }
     }
 }
