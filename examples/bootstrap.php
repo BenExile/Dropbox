@@ -39,10 +39,15 @@ $encrypter = new \Dropbox\OAuth\Storage\Encrypter('XXXXXXXXXXXXXXXXXXXXXXXXXXXXX
 $storage = new \Dropbox\OAuth\Storage\Session($encrypter);
 
 // Instantiate the persistent data store and connect
-// Note: If you use this, comment out line 39 and import oauth_tokens.sql to your database
+// Note: If you use this, comment out lines 39 and 50 and import oauth_tokens.sql to your database
 //$userID = 1; // User ID assigned by your auth system
 //$storage = new \Dropbox\OAuth\Storage\PDO($encrypter, $userID);
 //$storage->connect('host', 'db', 'username', 'password');
+
+// Instantiate the persistent data store and connect
+// Note: If you use this, comment out lines 39, 44, 45 and make sure the current folder is writable.
+//$userID = 1; // User ID assigned by your auth system
+//$storage = new \Dropbox\OAuth\Storage\Filesystem($encrypter, $userID);
 
 $OAuth = new \Dropbox\OAuth\Consumer\Curl($key, $secret, $storage, $callback);
 $dropbox = new \Dropbox\API($OAuth);
