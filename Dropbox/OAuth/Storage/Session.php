@@ -130,6 +130,6 @@ class Session implements StorageInterface
         }
         
         // Return the unserialized token
-        return unserialize($token);
+        return @unserialize($token);
     }
 }
