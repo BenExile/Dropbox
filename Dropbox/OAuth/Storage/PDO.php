@@ -63,11 +63,12 @@ class PDO extends Session
      * @param string $db Database to connect to
      * @param string $user Database username
      * @param string $pass Database user password
+     * @param int $port Database server port (default 3306)
      * @return void
      */
-    public function connect($host, $db, $user, $pass)
+    public function connect($host, $db, $user, $pass, $port = 3306)
     {
-        $dsn = 'mysql:host=' . $host . ';dbname=' . $db;
+        $dsn = 'mysql:host=' . $host . ';port=' . $port . ';dbname=' . $db;
         $this->pdo = new \PDO($dsn, $user, $pass, $this->options);
     }
     
