@@ -115,10 +115,10 @@ class PDO extends Session
         } elseif ($type == 'request_token') {
             parent::set($token, $type);
         } else {
-            $query = 'INSERT INTO oauth_tokens (userID, token) VALUES (?, ?)';
+            $query = 'INSERT INTO oauth_tokens (userID, token) VALUES (?, ?) ON DUPLICATE KEY UPDATE token = ?';
             $stmt = $this->pdo->prepare($query);
             $token = $this->encrypt($token);
-            $stmt->execute(array($this->userID, $token));
+            $stmt->execute(array($this->userID, $token, $token));
             $_SESSION[$this->namespace][$type] = $token;
         }
     }
