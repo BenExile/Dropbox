@@ -40,12 +40,10 @@ $storage = new \Dropbox\OAuth\Storage\Session($encrypter);
 
 // Instantiate the persistent data store and connect
 // Note: If you use this, comment out line 39 and import oauth_tokens.sql to your database
+// Note: Port number is optional and defaults to 3306
 //$userID = 1; // User ID assigned by your auth system
 //$storage = new \Dropbox\OAuth\Storage\PDO($encrypter, $userID);
-//$storage->connect('host', 'db', 'username', 'password');
-//
-// Optionally, a port number can be provided. By default this is 3306.
-//$storage->connect('host', 'db', 'username', 'password', 6600);
+//$storage->connect('host', 'db', 'username', 'password', 3306);
 
 $OAuth = new \Dropbox\OAuth\Consumer\Curl($key, $secret, $storage, $callback);
 $dropbox = new \Dropbox\API($OAuth);
