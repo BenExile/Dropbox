@@ -46,7 +46,7 @@ abstract class ConsumerAbstract
     protected function authenticate()
     {
         if ((!$this->storage->get('access_token'))) {
-            if (!isset($_GET['uid'], $_GET['oauth_token'])) {
+            if (!$this->storage->get('request_token')) {
                 $this->getRequestToken();
                 $this->authorise();
             } else {
