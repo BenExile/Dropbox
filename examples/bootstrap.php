@@ -43,6 +43,9 @@ $storage = new \Dropbox\OAuth\Storage\Session($encrypter);
 //$userID = 1; // User ID assigned by your auth system
 //$storage = new \Dropbox\OAuth\Storage\PDO($encrypter, $userID);
 //$storage->connect('host', 'db', 'username', 'password');
+//
+// Optionally, a port number can be provided. By default this is 3306.
+//$storage->connect('host', 'db', 'username', 'password', 6600);
 
 $OAuth = new \Dropbox\OAuth\Consumer\Curl($key, $secret, $storage, $callback);
 $dropbox = new \Dropbox\API($OAuth);
