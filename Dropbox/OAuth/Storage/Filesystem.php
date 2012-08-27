@@ -2,8 +2,9 @@
 
 /**
  * OAuth storage handler built using the filesystem
+ * @author Ben Tadiar <ben@handcraftedbyben.co.uk>
  * @author Jonas Schmid <jonas.schmid@gmail.com>
- * @link https://github.com/jschmid/dropbox
+ * @link https://github.com/benthedesigner/dropbox
  * @package Dropbox\Oauth
  * @subpackage Storage
  */
@@ -18,11 +19,15 @@ class Filesystem extends Session
     private $userID = null;
     
     /**
-     * Associative array of PDO connection options
+     * Folder where the session are stored
      * @var string
      */
     private $sessionsFolder = "oauthTokens";
     
+    /**
+     * Session filename
+     * @var string
+     */
     private $userFilename;
     
     /**
@@ -47,6 +52,8 @@ class Filesystem extends Session
         
         // Set the authenticated user ID
         $this->userID = $userID;
+        
+        // Set the session filename
         $this->userFilename = $this->sessionsFolder . '/' . $this->userID;
     }
     
@@ -78,8 +85,8 @@ class Filesystem extends Session
     }
     
     /**
-     * Set an OAuth token in the database or session (see below)
-     * Request tokens are stored in the session, access tokens in the database
+     * Set an OAuth token in the file or session (see below)
+     * Request tokens are stored in the session, access tokens in the file
      * @param \stdClass Token object to set
      * @param string $type Token type
      * @return void
