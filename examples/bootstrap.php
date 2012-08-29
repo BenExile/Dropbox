@@ -2,17 +2,17 @@
 
 /**
  * A bootstrap for the Dropbox SDK usage examples
- * @link https://github.com/BenTheDesigner/Dropbox/tree/master/examples
- */
+* @link https://github.com/BenTheDesigner/Dropbox/tree/master/examples
+*/
 
 // Prevent access via command line interface
 if (PHP_SAPI === 'cli') {
-	exit('bootstrap.php must not be run via the command line interface');
+    exit('bootstrap.php must not be run via the command line interface');
 }
 
 // Don't allow direct access to the bootstrap
 if(basename($_SERVER['REQUEST_URI']) == 'bootstrap.php'){
-	exit('bootstrap.php does nothing on its own. Please see the examples provided');
+    exit('bootstrap.php does nothing on its own. Please see the examples provided');
 }
 
 // Set error reporting
@@ -22,8 +22,8 @@ ini_set('html_errors', 'On');
 
 // Register a simple autoload function
 spl_autoload_register(function($class){
-	$class = str_replace('\\', '/', $class);
-	require_once('../' . $class . '.php');
+    $class = str_replace('\\', '/', $class);
+    require_once('../' . $class . '.php');
 });
 
 // Set your consumer key, secret and callback URL
@@ -38,12 +38,19 @@ $callback = $protocol . '://' . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'];
 $encrypter = new \Dropbox\OAuth\Storage\Encrypter('XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX');
 $storage = new \Dropbox\OAuth\Storage\Session($encrypter);
 
-// Instantiate the persistent data store and connect
-// Note: If you use this, comment out line 39 and import oauth_tokens.sql to your database
-// Note: Port number is optional and defaults to 3306
-//$userID = 1; // User ID assigned by your auth system
+// User ID assigned by your auth system (used by persistent storage handlers)
+$userID = 1;
+
+// Instantiate the filesystem store and set the token directory
+// Note: If you use this, comment out line 39
+//$storage = new \Dropbox\OAuth\Storage\Filesystem($encrypter, 1);
+//$storage->setDirectory('tokens');
+
+// Instantiate the database data store and connect
+// Note: If you use this, comment out line 39, 46 and 47
+// Note: Ensure you import oauth_tokens.sql to your database
 //$storage = new \Dropbox\OAuth\Storage\PDO($encrypter, $userID);
-//$storage->connect('host', 'db', 'username', 'password', 3306);
+//$storage->connect('localhost', 'dropbox', 'username', 'password', 3306);
 
 $OAuth = new \Dropbox\OAuth\Consumer\Curl($key, $secret, $storage, $callback);
 $dropbox = new \Dropbox\API($OAuth);
