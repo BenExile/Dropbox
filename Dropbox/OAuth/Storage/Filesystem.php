@@ -19,16 +19,11 @@ class Filesystem extends Session
     private $userID = null;
     
     /**
-     * Folder where the session are stored
-     * @var string
+     * Folder to store OAuth token files
+     * @see \Dropbox\OAuth\Storage\Filesystem::setDirectory();
+     * @var null|string
      */
-    private $sessionsFolder = "oauthTokens";
-    
-    /**
-     * Session filename
-     * @var string
-     */
-    private $userFilename;
+    private $tokenDirectory = null;
     
     /**
      * Construct the parent object and
@@ -39,22 +34,28 @@ class Filesystem extends Session
      */
     public function __construct(Encrypter $encrypter = null, $userID)
     {
-        // Create the folder if needed, throw an Exception if not possible
-        if (!is_dir($this->sessionsFolder)) {
-            if(!mkdir($this->sessionsFolder)) {
-              throw new \Dropbox\Exception('Could not create a folder to store sessions.');
-            }
-        }
-        
         // Construct the parent object so we can access the SESSION
         // instead of reading the file on every request
         parent::__construct($encrypter);
         
         // Set the authenticated user ID
         $this->userID = $userID;
-        
-        // Set the session filename
-        $this->userFilename = $this->sessionsFolder . '/' . $this->userID;
+    }
+    
+    /**
+     * Set the directory to store OAuth tokens
+     * This method MUST be called after instantiating the storage
+     * handler to avoid creating tokens in potentially vulnerable
+     * locations (i.e. inside web root)
+     * @param string $dir Path to token storage directory
+     */
+    public function setDirectory($dir)
+    {
+        if(!is_dir($dir) && !mkdir($dir, 0775, true)) {
+            throw new \Dropbox\Exception('Unable to create directory ' . $dir);
+        } else {
+            $this->tokenDirectory = $dir;
+        }
     }
     
     /**
@@ -74,11 +75,10 @@ class Filesystem extends Session
         } elseif ($token = parent::get($type)) {
             return $token;
         } else {
-            if(file_exists($this->userFilename)) {
-                $filecontent = file_get_contents($this->userFilename);
-                $_SESSION[$this->namespace][$type] = $filecontent;
-                $token = $this->decrypt($filecontent);
-                return $token;
+            $file = $this->getTokenFilePath();
+            if(file_exists($file) && $token = file_get_contents($file)) {
+                $_SESSION[$this->namespace][$type] = $token;
+                return $this->decrypt($token);
             }
             return false;
         }
@@ -99,8 +99,22 @@ class Filesystem extends Session
             parent::set($token, $type);
         } else {
             $token = $this->encrypt($token);
-            file_put_contents($this->userFilename, $token);
+            $file = $this->getTokenFilePath();
+            file_put_contents($file, $token);
             $_SESSION[$this->namespace][$type] = $token;
+        }
+    }
+    
+    /**
+     * Get the token file path for the specified user ID
+     * @return string
+     */
+    private function getTokenFilePath()
+    {
+        if($this->tokenDirectory === null) {
+            throw new \Dropbox\Exception('OAuth token directory not set. See Filesystem::setDirectory()');
+        } else {
+            return $this->tokenDirectory . '/' . md5($this->userID) . '.token';
         }
     }
 }
