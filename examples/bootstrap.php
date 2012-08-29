@@ -43,7 +43,7 @@ $userID = 1;
 
 // Instantiate the filesystem store and set the token directory
 // Note: If you use this, comment out line 39
-//$storage = new \Dropbox\OAuth\Storage\Filesystem($encrypter, 1);
+//$storage = new \Dropbox\OAuth\Storage\Filesystem($encrypter, $userID);
 //$storage->setDirectory('tokens');
 
 // Instantiate the database data store and connect
