@@ -138,7 +138,6 @@ class API
     
     /**
      * Uploads large files to Dropbox in mulitple chunks
-     * Note: This method is subject to change and, as such, should not be used in production
      * @param string $file Absolute path to the file to be uploaded
      * @param string|bool $filename The destination filename of the uploaded file
      * @param string $path Path to upload the file to, relative to root
