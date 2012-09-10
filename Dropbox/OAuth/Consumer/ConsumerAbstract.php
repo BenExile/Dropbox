@@ -46,11 +46,11 @@ abstract class ConsumerAbstract
     protected function authenticate()
     {
         if ((!$this->storage->get('access_token'))) {
-            if (!$this->storage->get('request_token')) {
+            try {
+                $this->getAccessToken();
+            } catch(\Dropbox\Exception $e) {
                 $this->getRequestToken();
                 $this->authorise();
-            } else {
-                $this->getAccessToken();
             }
         }
     }
