@@ -106,12 +106,23 @@ class Filesystem extends Session
     }
     
     /**
+     * Delete the access token stored on disk for the current user ID
+     * @return bool
+     */
+    public function delete()
+    {
+        parent::delete();
+        $file = $this->getTokenFilePath();
+        return file_exists($file) && @unlink($file);
+    }
+    
+    /**
      * Get the token file path for the specified user ID
      * @return string
      */
     private function getTokenFilePath()
     {
-        if($this->tokenDirectory === null) {
+        if ($this->tokenDirectory === null) {
             throw new \Dropbox\Exception('OAuth token directory not set. See Filesystem::setDirectory()');
         } else {
             return $this->tokenDirectory . '/' . md5($this->userID) . '.token';

@@ -58,8 +58,7 @@ class Session implements StorageInterface
     
     /**
      * Get an OAuth token from the session
-     * If the encrpytion object is set then
-     * decrypt the token before returning
+     * If the encrpytion object is set then decrypt the token before returning
      * @param string $type Token type to retrieve
      * @return array|bool
      */
@@ -78,8 +77,7 @@ class Session implements StorageInterface
     
     /**
      * Set an OAuth token in the session by type
-     * If the encryption object is set then
-     * encrypt the token before storing
+     * If the encryption object is set then encrypt the token before storing
      * @param \stdClass Token object to set
      * @param string $type Token type
      * @return void
@@ -92,6 +90,16 @@ class Session implements StorageInterface
             $token = $this->encrypt($token);
             $_SESSION[$this->namespace][$type] = $token;
         }
+    }
+    
+    /**
+     * Delete the request and access tokens currently stored in the session
+     * @return bool
+     */
+    public function delete()
+    {
+        unset($_SESSION[$this->namespace]);
+        return true;
     }
     
     /**

@@ -122,4 +122,22 @@ class PDO extends Session
             $_SESSION[$this->namespace][$type] = $token;
         }
     }
+    
+    /**
+     * Delete access token for the current user ID from the database
+     * @todo Add error checking
+     * @return bool
+     */
+    public function delete()
+    {
+        try {
+            parent::delete();
+            $query = 'DELETE FROM oauth_tokens WHERE userID = ?';
+            $stmt = $this->pdo->prepare($query);
+            $stmt->execute(array($this->userID));
+            return $stmt->rowCount() > 0;
+        } catch(\PDOException $e) {
+            return false;
+        }
+    }
 }
