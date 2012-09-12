@@ -23,4 +23,9 @@ interface StorageInterface
      * @param string $type Token type
      */
     public function set($token, $type);
+    
+    /**
+     * Delete tokens for the current session/user
+     */
+    public function delete();
 }
