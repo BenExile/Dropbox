@@ -246,6 +246,15 @@ class API
             'rev' => (is_string($rev)) ? $rev : null,
         );
         $response = $this->fetch('POST', self::API_URL, $call, $params);
+        if(isset($response['body']->contents) && sizeof($response['body']->contents)>0){
+    		foreach($response['body']->contents as $id=>$file)
+			{
+				if($file->is_dir==true){
+					$subfolder=$this->metaData($file->path);
+					$response['body']->contents[$id]->contents=$subfolder['body']->contents;
+				}
+			}
+		}
         return $response;
     }
     
