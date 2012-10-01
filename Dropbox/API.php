@@ -154,18 +154,24 @@ class API
                 
                 // Read from the file handle until EOF, uploading each chunk
                 while ($data = fread($handle, $this->chunkSize)) {
+                    // Open a temporary file handle and write a chunk of data to it
                     $chunkHandle = fopen('php://temp', 'rw');
                     fwrite($chunkHandle, $data);
+                    
+                    // Set the file, request parameters and send the request
                     $this->OAuth->setInFile($chunkHandle);
+                    $params = array('upload_id' => $uploadID, 'offset' => $offset);
+                    $response = $this->fetch('PUT', self::CONTENT_URL, 'chunked_upload', $params);
                     
                     // On subsequent chunks, use the upload ID returned by the previous request
                     if (isset($response['body']->upload_id)) {
                         $uploadID = $response['body']->upload_id;
                     }
                     
-                    $params = array('upload_id' => $uploadID, 'offset' => $offset);
-                    $response = $this->fetch('PUT', self::CONTENT_URL, 'chunked_upload', $params);
+                    // Set the data offset
                     $offset += mb_strlen($data, '8bit');
+                    
+                    // Close the file handle for this chunk
                     fclose($chunkHandle);
                 }
                 
