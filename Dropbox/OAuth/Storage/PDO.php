@@ -36,6 +36,13 @@ class PDO extends Session
     private $pdo = null;
     
     /**
+     * Default database table
+     * Override this using setTable()
+     * @var string
+     */
+    private $table = 'dropbox_oauth_tokens';
+    
+    /**
      * Construct the parent object and
      * set the authenticated user ID
      * @param \Dropbox\OAuth\Storage\Encrypter $encrypter
@@ -73,6 +80,18 @@ class PDO extends Session
     }
     
     /**
+     * Set the table to store OAuth tokens in
+     * If the table does not exist, the get() method will attempt to create it when it is called.
+     * @todo Check for valid table name and quote it (see below)
+     * @link http://dev.mysql.com/doc/refman/5.0/en/identifiers.html
+     * @return void
+     */
+    public function setTable($table)
+    {
+        $this->table = $table;
+    }
+    
+    /**
      * Get an OAuth token from the database or session (see below)
      * Request tokens are stored in the session, access tokens in the database
      * Once a token is retrieved it will be stored in the users session
@@ -89,14 +108,29 @@ class PDO extends Session
         } elseif ($token = parent::get($type)) {
             return $token;
         } else {
-            $query = 'SELECT token FROM oauth_tokens WHERE userID = ? LIMIT 1';
-            $stmt = $this->pdo->prepare($query);
-            $stmt->execute(array($this->userID));
-            if ($result = $stmt->fetch()) {
-                $token = $this->decrypt($result['token']);
-                $_SESSION[$this->namespace][$type] = $result['token'];
-                return $token;
+            try {
+                $query = 'SELECT uid, userID, token FROM ' . $this->table . ' WHERE userID = ? LIMIT 1';
+                $stmt = $this->pdo->prepare($query);
+                $stmt->execute(array($this->userID));
+                if ($result = $stmt->fetch()) {
+                    $token = $this->decrypt($result['token']);
+                    $_SESSION[$this->namespace][$type] = $result['token'];
+                    return $token;
+                }
+            } catch (\PDOException $e) {
+                // Fetch error information from the statement handle
+                $errorInfo = $stmt->errorInfo();
+
+                // Handle the PDOException based on the error code
+                switch ($errorInfo[1]) {
+                    case 1146: // Table does not exist
+                        $this->createTable();
+                        break;
+                    default: // Rethrow the PDOException
+                        throw $e;
+                }
             }
+            
             return false;
         }
     }
@@ -111,11 +145,12 @@ class PDO extends Session
     public function set($token, $type)
     {
         if ($type != 'request_token' && $type != 'access_token') {
-            throw new \Dropbox\Exception("Expected a type of either 'request_token' or 'access_token', got '$type'");
+            $message = "Expected a type of either 'request_token' or 'access_token', got '$type'";
+            throw new \Dropbox\Exception($message);
         } elseif ($type == 'request_token') {
             parent::set($token, $type);
         } else {
-            $query = 'INSERT INTO oauth_tokens (userID, token) VALUES (?, ?) ON DUPLICATE KEY UPDATE token = ?';
+            $query = 'INSERT INTO ' . $this->table . ' (userID, token) VALUES (?, ?) ON DUPLICATE KEY UPDATE token = ?';
             $stmt = $this->pdo->prepare($query);
             $token = $this->encrypt($token);
             $stmt->execute(array($this->userID, $token, $token));
@@ -139,5 +174,15 @@ class PDO extends Session
         } catch(\PDOException $e) {
             return false;
         }
+    }
+    
+    /**
+     * Attempt to create the OAuth token table
+     * @return void
+     */
+    protected function createTable()
+    {
+        $template = file_get_contents(dirname(__FILE__) . '/TableSchema.sql');
+        $this->pdo->query(sprintf($template, $this->table));
     }
 }
