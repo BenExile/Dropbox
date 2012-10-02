@@ -1,0 +1,8 @@
+# Eclipse
+.settings
+.project
+.buildpath
+
+# Composer
+composer.lock
+vendor/
