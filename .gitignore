@@ -2,6 +2,9 @@
 .settings
 .project
 .buildpath
+.project
+.settings
+!tests/.gitignore
 
 # Composer
 composer.lock
