@@ -36,21 +36,23 @@ $callback = $protocol . '://' . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'];
 
 // Instantiate the Encrypter and storage objects
 $encrypter = new \Dropbox\OAuth\Storage\Encrypter('XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX');
-$storage = new \Dropbox\OAuth\Storage\Session($encrypter);
 
 // User ID assigned by your auth system (used by persistent storage handlers)
 $userID = 1;
 
+// Instantiate the database data store and connect
+$storage = new \Dropbox\OAuth\Storage\PDO($encrypter, $userID);
+$storage->connect('localhost', 'dropbox', 'username', 'password', 3306);
+// Optionally set the table name, default is dropbox_oauth_tokens
+// $storage->setTable('oauth_tokens');
+
+// If you use this, comment out lines 44-47
+//$storage = new \Dropbox\OAuth\Storage\Session($encrypter);
+
 // Instantiate the filesystem store and set the token directory
-// Note: If you use this, comment out line 39
+// Note: If you use this, comment out lines 44-47 and 50
 //$storage = new \Dropbox\OAuth\Storage\Filesystem($encrypter, $userID);
 //$storage->setDirectory('tokens');
-
-// Instantiate the database data store and connect
-// Note: If you use this, comment out line 39, 46 and 47
-// Note: Ensure you import oauth_tokens.sql to your database
-//$storage = new \Dropbox\OAuth\Storage\PDO($encrypter, $userID);
-//$storage->connect('localhost', 'dropbox', 'username', 'password', 3306);
 
 $OAuth = new \Dropbox\OAuth\Consumer\Curl($key, $secret, $storage, $callback);
 $dropbox = new \Dropbox\API($OAuth);
