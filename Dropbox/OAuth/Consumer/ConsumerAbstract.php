@@ -24,7 +24,7 @@ abstract class ConsumerAbstract
      * Signature method, either PLAINTEXT or HMAC-SHA1
      * @var string
      */
-    private $sigMethod = 'HMAC-SHA1';
+    private $sigMethod = 'PLAINTEXT';
     
     /**
      * Output file handle
