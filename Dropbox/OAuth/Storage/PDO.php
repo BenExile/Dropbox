@@ -167,7 +167,7 @@ class PDO extends Session
     {
         try {
             parent::delete();
-            $query = 'DELETE FROM oauth_tokens WHERE userID = ?';
+            $query = 'DELETE FROM ' . $this->table . ' WHERE userID = ?';
             $stmt = $this->pdo->prepare($query);
             $stmt->execute(array($this->userID));
             return $stmt->rowCount() > 0;
