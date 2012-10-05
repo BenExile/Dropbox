@@ -13,6 +13,7 @@ Unless otherwise stated, all components of the SDK are licensed under the [MIT L
 
 ### Known Issues
 
+* A recent change to the PDO storage handler will require a calling code change or end users will need to re-authorise the application. See [here][PDO handler change]
 * Due to [PHP Bug #48962][] affecting cURL, PHP >= 5.3.1 must be used until further consumers are available
 
 ### Usage & Examples
@@ -35,3 +36,4 @@ If you'd like to show your support, [donations][] of alcoholic beverages are muc
 [PHP Bug #48962]: https://bugs.php.net/bug.php?id=48962
 [examples provided]: https://github.com/BenTheDesigner/Dropbox/tree/master/examples
 [donations]: https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=YQJX52Q6S54HA
+[PDO handler change]: https://github.com/BenTheDesigner/Dropbox/commit/d407b7cf332877491e2c7e108a30102dd61d481b#commitcomment-1936563
