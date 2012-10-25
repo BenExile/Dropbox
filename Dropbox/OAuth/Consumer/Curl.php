@@ -18,7 +18,7 @@ class Curl extends ConsumerAbstract
      * @var array
      */
     private $defaultOptions = array(
-        CURLOPT_SSL_VERIFYPEER => false,
+        CURLOPT_SSL_VERIFYPEER => true,
         CURLOPT_VERBOSE        => true,
         CURLOPT_HEADER         => true,
         CURLINFO_HEADER_OUT    => false,
@@ -66,6 +66,7 @@ class Curl extends ConsumerAbstract
         
         // Get the default options array
         $options = $this->defaultOptions;
+        $options[CURLOPT_CAINFO] = dirname(__FILE__) . '/ca-bundle.pem';
         
         if ($method == 'GET' && $this->outFile) { // GET
             $options[CURLOPT_RETURNTRANSFER] = false;
