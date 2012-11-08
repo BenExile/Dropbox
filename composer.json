@@ -2,7 +2,7 @@
     "name": "benthedesigner/dropbox",
     "type": "library",
     "description": "PHP 5.3 SDK for the Dropbox REST API",
-    "keywords": ["Dropbox, API"],
+    "keywords": ["Dropbox", "API"],
     "homepage": "https://github.com/BenTheDesigner/Dropbox",
     "license": "MIT",
     "authors": [
