@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Download a file and it's metadata
+ * Download a file and its metadata
  * The object returned will contain the file name, MIME type, metadata 
  * (obtained from x-dropbox-metadata HTTP header) and file contents
  * @link https://www.dropbox.com/developers/reference/api#files-GET
