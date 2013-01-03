@@ -327,10 +327,11 @@ class API
      * @param string $path The path to the file/folder you want a sharable link to
      * @return object stdClass
      */
-    public function shares($path)
+    public function shares($path, $shortUrl = true)
     {
         $call = 'shares/' . $this->root . '/' .$this->encodePath($path);
-        $response = $this->fetch('POST', self::API_URL, $call);
+        $params = array('short_url' => ($shortUrl) ? 1 : 0);
+        $response = $this->fetch('POST', self::API_URL, $call, $params);
         return $response;
     }
     
