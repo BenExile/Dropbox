@@ -27,8 +27,8 @@ spl_autoload_register(function($class){
 });
 
 // Set your consumer key, secret and callback URL
-$key      = 'XXXXXXXXXXXXXXX';
-$secret   = 'XXXXXXXXXXXXXXX';
+$key    = 'XXXXXXXXXXXXXXX';
+$secret = 'XXXXXXXXXXXXXXX';
 
 // Check whether to use HTTPS and set the callback URL
 $protocol = (!empty($_SERVER['HTTPS'])) ? 'https' : 'http';
@@ -42,17 +42,8 @@ $userID = 1;
 
 // Instantiate the database data store and connect
 $storage = new \Dropbox\OAuth\Storage\PDO($encrypter, $userID);
-$storage->connect('localhost', 'dropbox', 'username', 'password', 3306);
-// Optionally set the table name, default is dropbox_oauth_tokens
-// $storage->setTable('oauth_tokens');
+$storage->connect('localhost', 'dropbox', 'dropbox', 'xxxxxxxxxx', 3306);
 
-// If you use this, comment out lines 44-47
-//$storage = new \Dropbox\OAuth\Storage\Session($encrypter);
-
-// Instantiate the filesystem store and set the token directory
-// Note: If you use this, comment out lines 44-47 and 50
-//$storage = new \Dropbox\OAuth\Storage\Filesystem($encrypter, $userID);
-//$storage->setDirectory('tokens');
-
+// Create the consumer and API objects
 $OAuth = new \Dropbox\OAuth\Consumer\Curl($key, $secret, $storage, $callback);
 $dropbox = new \Dropbox\API($OAuth);

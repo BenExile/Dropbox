@@ -101,7 +101,7 @@ class Curl extends ConsumerAbstract
         // Check if an error occurred and throw an Exception
         if (!empty($response['body']->error)) {
             $message = $response['body']->error . ' (Status Code: ' . $response['code'] . ')';
-            throw new \Dropbox\Exception($message);
+            throw new \Dropbox\Exception($message, $response['code']);
         }
         
         return $response;

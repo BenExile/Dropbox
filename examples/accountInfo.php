@@ -9,8 +9,16 @@
 // Require the bootstrap
 require_once('bootstrap.php');
 
-// Retrieve the account information
-$accountInfo = $dropbox->accountInfo();
+try {
+	// Attempt to retrieve the account information
+	$accountInfo = $dropbox->accountInfo();
+} catch (\Dropbox\Exception $e) {
+	if ($e->getCode() == 401) {
+		// If the token is invalid, delete it and re-authenticate
+		$storage->delete();
+		header('Location: ' . $callback);
+	}
+}
 
 // Dump the output
 var_dump($accountInfo);
