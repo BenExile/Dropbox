@@ -100,8 +100,14 @@ class Curl extends ConsumerAbstract
         
         // Check if an error occurred and throw an Exception
         if (!empty($response['body']->error)) {
-            $message = $response['body']->error . ' (Status Code: ' . $response['code'] . ')';
-            throw new \Dropbox\Exception($message, $response['code']);
+        	// Dropbox returns error messages inconsistently...
+        	if ($response['body']->error instanceof \stdClass) {
+        		$array = array_values((array) $response['body']->error);
+        		$response['body']->error = $array[0];
+        	}
+
+        	// Throw an Exception with the appropriate with the appropriate code
+            throw new \Dropbox\Exception($response['body']->error, $response['code']);
         }
         
         return $response;
