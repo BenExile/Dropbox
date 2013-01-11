@@ -8,7 +8,8 @@
  * @link https://status.dropbox.com Dropbox status
  * @package Dropbox
  */
-namespace Dropbox;
+
+namespace DropBox;
 
 class API
 {
@@ -142,15 +143,19 @@ class API
      * @param string|bool $filename The destination filename of the uploaded file
      * @param string $path Path to upload the file to, relative to root
      * @param boolean $overwrite Should the file be overwritten? (Default: true)
+     * @param integer $offset position to seek to when opening the file
+     * @param string $uploadID existing upload_id to resume an upload
+     * @param string|array function to call back to upon each chunk
      * @return stdClass
      */
-    public function chunkedUpload($file, $filename = false, $path = '', $overwrite = true)
+    public function chunkedUpload($file, $filename = false, $path = '', $overwrite = true, $offset = 0, $uploadID = null, $callback = null)
     {
         if (file_exists($file)) {
             if ($handle = @fopen($file, 'r')) {
                 // Set initial upload ID and offset
-                $uploadID = null;
-                $offset = 0;
+                if ($offset > 0) {
+                    fseek($handle, $offset);
+                }
                 
                 // Read from the file handle until EOF, uploading each chunk
                 while ($data = fread($handle, $this->chunkSize)) {
@@ -170,6 +175,10 @@ class API
                     
                     // Set the data offset
                     $offset += mb_strlen($data, '8bit');
+                    
+                    if ($callback) {
+                        call_user_func($callback, $offset, $uploadID);
+                    }
                     
                     // Close the file handle for this chunk
                     fclose($chunkHandle);
@@ -225,7 +234,7 @@ class API
 
         return array(
             'name' => ($outFile) ? $outFile : basename($file),
-            'mime' => $this->getMimeType(($outFile) ?: $response['body'], $outFile),
+            'mime' => $this->getMimeType(($outFile) ? $outFile : $response['body'], $outFile),
             'meta' => json_decode($response['headers']['x-dropbox-metadata']),
             'data' => $response['body'],
         );
