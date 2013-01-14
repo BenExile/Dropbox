@@ -13,12 +13,6 @@ namespace Dropbox\OAuth\Storage;
 class Filesystem extends Session
 {
     /**
-     * Authenticated user ID
-     * @var int
-     */
-    private $userID = null;
-    
-    /**
      * Folder to store OAuth token files
      * @see \Dropbox\OAuth\Storage\Filesystem::setDirectory();
      * @var null|string
@@ -36,10 +30,7 @@ class Filesystem extends Session
     {
         // Construct the parent object so we can access the SESSION
         // instead of reading the file on every request
-        parent::__construct($encrypter);
-        
-        // Set the authenticated user ID
-        $this->userID = $userID;
+        parent::__construct($encrypter, $userID);
     }
     
     /**

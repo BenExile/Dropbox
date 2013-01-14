@@ -28,21 +28,30 @@ class Session implements StorageInterface
     protected $encrypter = null;
     
     /**
+     * Authenticated user ID
+     * @var mixed
+     */
+    protected $userID = null;
+    
+    /**
      * Check if a session has been started (start one where appropriate)
      * and if an instance of the encrypter is passed, set the encryption object
      * @return void
      */
-    public function __construct(Encrypter $encrypter = null)
+    public function __construct(Encrypter $encrypter = null, $userID = null)
     {
-        $id = session_id();
-        
-        if (empty($id)) {
-            session_start();    
+    	// If no session is started, start one
+        if (session_id() == '') {
+            session_start();
         }
         
+        // Set the encrypter object if required
         if ($encrypter instanceof Encrypter) {
             $this->encrypter = $encrypter;
         }
+        
+        // Set the authenticated user ID
+        $this->userID = $userID;
     }
     
     /**
@@ -67,8 +76,8 @@ class Session implements StorageInterface
         if ($type != 'request_token' && $type != 'access_token') {
             throw new \Dropbox\Exception("Expected a type of either 'request_token' or 'access_token', got '$type'");
         } else {
-            if (isset($_SESSION[$this->namespace][$type])) {
-                $token = $this->decrypt($_SESSION[$this->namespace][$type]);
+            if (isset($_SESSION[$this->namespace][$this->userID][$type])) {
+                $token = $this->decrypt($_SESSION[$this->namespace][$this->userID][$type]);
                 return $token;
             }
             return false;
@@ -88,7 +97,7 @@ class Session implements StorageInterface
             throw new \Dropbox\Exception("Expected a type of either 'request_token' or 'access_token', got '$type'");
         } else {
             $token = $this->encrypt($token);
-            $_SESSION[$this->namespace][$type] = $token;
+            $_SESSION[$this->namespace][$this->userID][$type] = $token;
         }
     }
     
@@ -98,7 +107,7 @@ class Session implements StorageInterface
      */
     public function delete()
     {
-        unset($_SESSION[$this->namespace]);
+        unset($_SESSION[$this->namespace][$this->userID]);
         return true;
     }
     

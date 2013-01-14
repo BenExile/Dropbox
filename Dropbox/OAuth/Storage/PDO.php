@@ -14,16 +14,10 @@ namespace Dropbox\OAuth\Storage;
 class PDO extends Session
 {
     /**
-     * Authenticated user ID
-     * @var int
-     */
-    private $userID = null;
-    
-    /**
      * Associative array of PDO connection options
      * @var array
      */
-    private $options = array(
+    protected $options = array(
         \PDO::MYSQL_ATTR_INIT_COMMAND => 'SET NAMES utf8',
         \PDO::ATTR_ERRMODE => \PDO::ERRMODE_EXCEPTION,
         \PDO::ATTR_DEFAULT_FETCH_MODE => \PDO::FETCH_ASSOC,
@@ -33,14 +27,14 @@ class PDO extends Session
      * Forward-declare PDO object
      * @var null|PDO
      */
-    private $pdo = null;
+    protected $pdo = null;
     
     /**
      * Default database table
      * Override this using setTable()
      * @var string
      */
-    private $table = 'dropbox_oauth_tokens';
+    protected $table = 'dropbox_oauth_tokens';
     
     /**
      * Construct the parent object and
@@ -58,10 +52,7 @@ class PDO extends Session
         
         // Construct the parent object so we can access the SESSION
         // instead of querying the database on every request
-        parent::__construct($encrypter);
-        
-        // Set the authenticated user ID
-        $this->userID = $userID;
+        parent::__construct($encrypter, $userID);
     }
     
     /**
