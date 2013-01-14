@@ -68,7 +68,7 @@ class Filesystem extends Session
         } else {
             $file = $this->getTokenFilePath();
             if(file_exists($file) && $token = file_get_contents($file)) {
-                $_SESSION[$this->namespace][$type] = $token;
+                $_SESSION[$this->namespace][$this->userID][$type] = $token;
                 return $this->decrypt($token);
             }
             return false;
@@ -92,7 +92,7 @@ class Filesystem extends Session
             $token = $this->encrypt($token);
             $file = $this->getTokenFilePath();
             file_put_contents($file, $token);
-            $_SESSION[$this->namespace][$type] = $token;
+            $_SESSION[$this->namespace][$this->userID][$type] = $token;
         }
     }
     

@@ -105,7 +105,7 @@ class PDO extends Session
                 $stmt->execute(array($this->userID));
                 if ($result = $stmt->fetch()) {
                     $token = $this->decrypt($result['token']);
-                    $_SESSION[$this->namespace][$type] = $result['token'];
+                    $_SESSION[$this->namespace][$this->userID][$type] = $result['token'];
                     return $token;
                 }
             } catch (\PDOException $e) {
@@ -145,7 +145,7 @@ class PDO extends Session
             $stmt = $this->pdo->prepare($query);
             $token = $this->encrypt($token);
             $stmt->execute(array($this->userID, $token, $token));
-            $_SESSION[$this->namespace][$type] = $token;
+            $_SESSION[$this->namespace][$this->userID][$type] = $token;
         }
     }
     
