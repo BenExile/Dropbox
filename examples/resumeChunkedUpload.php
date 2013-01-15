@@ -24,8 +24,22 @@ fseek($handle, $largeFileSize, SEEK_CUR);
 fwrite($handle, PHP_EOL);
 fclose($handle);
 
-// Upload the large file
-$chunked = $dropbox->chunkedUpload($largeFilePath, false, '');
+// Purposely set an incorrect offset
+$offset = 12345;
+
+// Upload ID to resume or null (new chunked upload)
+$uploadID = null;
+
+// Resume the upload
+$chunked = null;
+while (!isset($chunked['body'])) {
+	$chunked = $dropbox->chunkedUpload($largeFilePath, false, '', true, $offset, $uploadID);
+	if (isset($chunked['offset']) && isset($chunked['uploadID'])) {
+		// The wrong offset was supplied for the resumed upload. Correct it and continue.
+		$offset = $chunked['offset'];
+		$uploadID = $chunked['uploadID'];
+	}
+}
 
 // Dump the output
 var_dump($chunked);

@@ -17,7 +17,7 @@ class Curl extends ConsumerAbstract
      * Default cURL options
      * @var array
      */
-    private $defaultOptions = array(
+    protected $defaultOptions = array(
         CURLOPT_SSL_VERIFYPEER => true,
         CURLOPT_VERBOSE        => true,
         CURLOPT_HEADER         => true,
@@ -25,6 +25,12 @@ class Curl extends ConsumerAbstract
         CURLOPT_RETURNTRANSFER => true,
         CURLOPT_FOLLOWLOCATION => false,
     );
+    
+    /**
+     * Store the last response form the API
+     * @var mixed
+     */
+    protected $lastResponse = null;
     
     /**
      * Set properties and begin authentication
@@ -98,6 +104,9 @@ class Curl extends ConsumerAbstract
             $response = $this->parse($response);
         }
         
+        // Set the last response
+        $this->lastResponse = $response;
+        
         // Check if an error occurred and throw an Exception
         if (!empty($response['body']->error)) {
         	// Dropbox returns error messages inconsistently...
@@ -153,5 +162,14 @@ class Curl extends ConsumerAbstract
         }
         
         return array('code' => $code, 'body' => $body, 'headers' => $headers);
+    }
+    
+    /**
+     * Return the response for the last API request
+     * @return mixed
+     */
+    public function getlastResponse()
+    {
+    	return $this->lastResponse;
     }
 }
