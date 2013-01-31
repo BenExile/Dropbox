@@ -20,9 +20,10 @@ Unless otherwise stated, all components of the SDK are licensed under the [MIT L
 
 Please see the [examples provided][].
 
-### Flattr
+### Contributions & Flattr
 
 A few people have asked me to add a Flattr button, so I have. Any contribution is much appreciated, but contributions to the community are much more valuable.
+Thanks to all those who have contributed their time, whether it's been to add a feature or raise an issue - it's much appreciated.
 
 [![Flattr Button](http://api.flattr.com/button/flattr-badge-large.png)][Flattr]
 
