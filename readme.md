@@ -20,6 +20,12 @@ Unless otherwise stated, all components of the SDK are licensed under the [MIT L
 
 Please see the [examples provided][].
 
+### Flattr
+
+A few people have asked me to add a Flattr button, so I have. Any contribution is much appreciated, but contributions to the community are much more valuable.
+
+[![Flattr Button](http://api.flattr.com/button/flattr-badge-large.png)][Flattr]
+
 [Dropbox REST API]: https://www.dropbox.com/developers/reference/api
 [PSR-0 standard]: https://github.com/php-fig/fig-standards/blob/master/accepted/PSR-0.md
 [MIT License]: https://github.com/BenTheDesigner/Dropbox/blob/master/mit-license.md
@@ -29,3 +35,4 @@ Please see the [examples provided][].
 [PHP Bug #48962]: https://bugs.php.net/bug.php?id=48962
 [examples provided]: https://github.com/BenTheDesigner/Dropbox/tree/master/examples
 [PDO handler change]: https://github.com/BenTheDesigner/Dropbox/commit/d407b7cf332877491e2c7e108a30102dd61d481b#commitcomment-1936563
+[Flattr]: http://flattr.com/thing/1117838/
