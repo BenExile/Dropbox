@@ -97,6 +97,11 @@ class Curl extends ConsumerAbstract
         
         // Execute and parse the response
         $response = curl_exec($handle);
+
+        //Check if a curl error has occured
+        if ($response === false)
+            throw new \Dropbox\Exception("Error Processing Request: " . curl_error($handle));
+
         curl_close($handle);
         
         // Parse the response if it is a string
