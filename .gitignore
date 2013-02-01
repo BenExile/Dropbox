@@ -9,3 +9,6 @@
 # Composer
 composer.lock
 vendor/
+
+# Apple
+.DS_Store
