@@ -149,7 +149,7 @@ class API
         if (file_exists($file)) {
             if ($handle = @fopen($file, 'r')) {
             	// Seek to the correct position on the file pointer
-				fseek($handle, $offset);
+			    fseek($handle, $offset);
 				
                 // Read from the file handle until EOF, uploading each chunk
                 while ($data = fread($handle, $this->chunkSize)) {
