@@ -190,10 +190,10 @@ class API
                     // Close the file handle for this chunk
                     fclose($chunkHandle);
                 }
-                
+
                 // Complete the chunked upload
                 $filename = (is_string($filename)) ? $filename : basename($file);
-                $call = 'commit_chunked_upload/' . $this->root . '/' . $this->encodePath($path . $filename);
+                $call = 'commit_chunked_upload/' . $this->root . '/' . $this->encodePath(rtrim($path, '/') . '/' . $filename);
                 $params = array('overwrite' => (int) $overwrite, 'upload_id' => $uploadID);
                 $response = $this->fetch('POST', self::CONTENT_URL, $call, $params);
                 return $response;
