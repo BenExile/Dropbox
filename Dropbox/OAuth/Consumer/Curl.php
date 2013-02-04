@@ -51,7 +51,7 @@ class Curl extends ConsumerAbstract
     {
         // Check the cURL extension is loaded
         if (!extension_loaded('curl')) {
-            throw new \Dropbox\Exception('The cURL OAuth consumer requires the cURL extension');
+            throw new Exception('The cURL OAuth consumer requires the cURL extension');
         }
         
         $this->consumerKey = $key;
