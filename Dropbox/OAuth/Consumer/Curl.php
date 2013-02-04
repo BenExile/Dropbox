@@ -8,8 +8,15 @@
 * @subpackage Consumer
 */
 namespace Dropbox\OAuth\Consumer;
-use Dropbox\API as API;
-use Dropbox\OAuth\Storage\StorageInterface as StorageInterface;
+
+use Dropbox\API as API,
+    Dropbox\OAuth\Storage\StorageInterface as StorageInterface,
+    Dropbox\Exception,
+    Dropbox\Exception\BadRequestException,
+    Dropbox\Exception\NotAcceptableException,
+    Dropbox\Exception\NotFoundException,
+    Dropbox\Exception\NotModifiedException,
+    Dropbox\Exception\UnsupportedMediaTypeException;
 
 class Curl extends ConsumerAbstract
 {    
@@ -125,11 +132,26 @@ class Curl extends ConsumerAbstract
         	// Dropbox returns error messages inconsistently...
         	if ($response['body']->error instanceof \stdClass) {
         		$array = array_values((array) $response['body']->error);
-        		$response['body']->error = $array[0];
+        		$message = $array[0];
+        	} else {
+        	    $message = $response['body']->error;
         	}
-
-        	// Throw an Exception with the appropriate with the appropriate code
-            throw new \Dropbox\Exception($response['body']->error, $response['code']);
+        	
+        	// Throw an Exception with the appropriate with the appropriate message and code
+        	switch ($response['code']) {
+        	    case 304:
+        	        throw new NotModifiedException($message, 304);
+        	    case 400:
+        	        throw new BadRequestException($message, 400);
+        	    case 404:
+        	        throw new NotFoundException($message, 404);
+        	    case 406:
+        	        throw new NotAcceptableException($message, 406);
+        	    case 415:
+        	        throw new UnsupportedMediaTypeException($message, 415);
+        	    default:
+        	        throw new Exception($message, $response['code']);
+        	}
         }
         
         return $response;

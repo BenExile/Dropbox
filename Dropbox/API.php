@@ -97,36 +97,24 @@ class API
      */
     public function putFile($file, $filename = false, $path = '', $overwrite = true)
     {
-        try {
-            if (file_exists($file)) {
-                if (filesize($file) <= 157286400) {
-                    $call = 'files/' . $this->root . '/' . $this->encodePath($path);
-                    // If no filename is provided we'll use the original filename
-                    $filename = (is_string($filename)) ? $filename : basename($file);
-                    $params = array(
-                        'filename' => $filename,
-                        'file' => '@' . str_replace('\\', '/', $file) . ';filename=' . $filename,
-                        'overwrite' => (int) $overwrite,
-                    );
-            
-                    // Attempt to upload the file
-                    $response = $this->fetch('POST', self::CONTENT_URL, $call, $params);
-                    return $response;
-                }
-                throw new Exception('File exceeds 150MB upload limit');
+        if (file_exists($file)) {
+            if (filesize($file) <= 157286400) {
+                $call = 'files/' . $this->root . '/' . $this->encodePath($path);
+                // If no filename is provided we'll use the original filename
+                $filename = (is_string($filename)) ? $filename : basename($file);
+                $params = array(
+                    'filename' => $filename,
+                    'file' => '@' . str_replace('\\', '/', $file) . ';filename=' . $filename,
+                    'overwrite' => (int) $overwrite,
+                );
+                $response = $this->fetch('POST', self::CONTENT_URL, $call, $params);
+                return $response;
             }
-            
-            // Throw an Exception if the file does not exist
-            throw new Exception('Local file ' . $file . ' does not exist');
-        } catch (Exception $e) {
-            if ($e->getCode() == 400) {
-                // The file extension is on Dropbox's ignore list (e.g. thumbs.db or .ds_store)
-                throw new Exception\BadRequestException($e->getMessage());
-            } else {
-                throw $e;
-            }
+            throw new Exception('File exceeds 150MB upload limit');
         }
-      
+        
+        // Throw an Exception if the file does not exist
+        throw new Exception('Local file ' . $file . ' does not exist');
     }
     
     /**
@@ -177,15 +165,12 @@ class API
                     	// Attempt to upload the current chunk
                     	$response = $this->fetch('PUT', self::CONTENT_URL, 'chunked_upload', $params);
                     } catch (Exception $e) {
-                        $code = $e->getCode();
-                    	if ($code == 400) {
+                    	$response = $this->OAuth->getLastResponse();
+                    	if ($response['code'] == 400) {
                     		// Incorrect offset supplied, return expected offset and upload ID
-                    	    $response = $this->OAuth->getLastResponse();
                     		$uploadID = $response['body']->upload_id;
                     		$offset = $response['body']->offset;
                     		return array('uploadID' => $uploadID, 'offset' => $offset);
-                    	} elseif ($code == 404) {
-                    	    throw new Exception\NotFoundException($e->getMessage());
                     	} else {
                     		// Re-throw the caught Exception
                     		throw $e;
@@ -231,54 +216,42 @@ class API
      */
     public function getFile($file, $outFile = false, $revision = null)
     {
-        try {
-            // Only allow php response format for this call
-            if ($this->responseFormat !== 'php') {
-                throw new Exception('This method only supports the `php` response format');
-            }
-            
-            $handle = null;
-            if ($outFile !== false) {
-                // Create a file handle if $outFile is specified
-                if (!$handle = fopen($outFile, 'w')) {
-                    throw new Exception("Unable to open file handle for $outFile");
-                } else {
-                    $this->OAuth->setOutFile($handle);
-                }
-            }
-            
-            $file = $this->encodePath($file);
-            $call = 'files/' . $this->root . '/' . $file;
-            $params = array('rev' => $revision);
-            
-            $response = $this->fetch('GET', self::CONTENT_URL, $call, $params);
-            
-            // Close the file handle if one was opened
-            if ($handle) fclose($handle);
-            
-            return array(
-                'name' => ($outFile) ? $outFile : basename($file),
-                'mime' => $this->getMimeType(($outFile) ?: $response['body'], $outFile),
-                'meta' => json_decode($response['headers']['x-dropbox-metadata']),
-                'data' => $response['body'],
-            );
-        } catch (Exception $e) {
-            // Close the file handle if one was opened
-            if ($handle) fclose($handle);
-            if ($e->getCode() == 404) {
-                // The file wasn't found at the specified path/revision.
-                throw new Exception\NotFoundException($e->getMessage());
+        // Only allow php response format for this call
+        if ($this->responseFormat !== 'php') {
+            throw new Exception('This method only supports the `php` response format');
+        }
+        
+        $handle = null;
+        if ($outFile !== false) {
+            // Create a file handle if $outFile is specified
+            if (!$handle = fopen($outFile, 'w')) {
+                throw new Exception("Unable to open file handle for $outFile");
             } else {
-                throw $e;
+                $this->OAuth->setOutFile($handle);
             }
         }
+        
+        $file = $this->encodePath($file);        
+        $call = 'files/' . $this->root . '/' . $file;
+        $params = array('rev' => $revision);
+        $response = $this->fetch('GET', self::CONTENT_URL, $call, $params);
+        
+        // Close the file handle if one was opened
+        if ($handle) fclose($handle);
+
+        return array(
+            'name' => ($outFile) ? $outFile : basename($file),
+            'mime' => $this->getMimeType(($outFile) ?: $response['body'], $outFile),
+            'meta' => json_decode($response['headers']['x-dropbox-metadata']),
+            'data' => $response['body'],
+        );
     }
     
     /**
      * Retrieves file and folder metadata
      * @param string $path The path to the file/folder, relative to root
      * @param string $rev Return metadata for a specific revision (Default: latest rev)
-     * @param int $limit Maximum number of listings to return (Default: 10000, Max: 25000)
+     * @param int $limit Maximum number of listings to return
      * @param string $hash Metadata hash to compare against
      * @param bool $list Return contents field with response
      * @param bool $deleted Include files/folders that have been deleted
@@ -286,31 +259,16 @@ class API
      */
     public function metaData($path = null, $rev = null, $limit = 10000, $hash = false, $list = true, $deleted = false)
     {
-        try {
-            $call = 'metadata/' . $this->root . '/' . $this->encodePath($path);
-            $params = array(
-                    'file_limit' => ($limit < 1) ? 1 : (($limit > 10000) ? 10000 : (int) $limit),
-                    'hash' => (is_string($hash)) ? $hash : 0,
-                    'list' => (int) $list,
-                    'include_deleted' => (int) $deleted,
-                    'rev' => (is_string($rev)) ? $rev : null,
-            );
-            
-            // Attempt to retrieve the metadata for $path
-            $response = $this->fetch('POST', self::API_URL, $call, $params);
-            return $response;
-        } catch (Exception $e) {
-            $code = $e->getCode();
-            if ($code == 406) {
-                // There are too many file entries to return (based on $limit)
-                throw new Exception\NotAcceptableException($e->getMessage());
-            } elseif ($code == 304) {
-                // The folder contents have not changed since $hash was generated
-                throw new Exception\NotModifiedException($e->getMessage());
-            } else {
-                throw $e;
-            }
-        }
+        $call = 'metadata/' . $this->root . '/' . $this->encodePath($path);
+        $params = array(
+            'file_limit' => ($limit < 1) ? 1 : (($limit > 10000) ? 10000 : (int) $limit),
+            'hash' => (is_string($hash)) ? $hash : 0,
+            'list' => (int) $list,
+            'include_deleted' => (int) $deleted,
+            'rev' => (is_string($rev)) ? $rev : null,
+        );
+        $response = $this->fetch('POST', self::API_URL, $call, $params);
+        return $response;
     }
     
     /**
@@ -336,19 +294,12 @@ class API
      */
     public function revisions($file, $limit = 10)
     {
-        try {
-            $call = 'revisions/' . $this->root . '/' . $this->encodePath($file);
-            $params = array('rev_limit' => ($limit < 1) ? 1 : (($limit > 1000) ? 1000 : (int) $limit));
-            $response = $this->fetch('GET', self::API_URL, $call, $params);
-            return $response;
-        } catch (Exception $e) {
-            if ($e->getCode() == 406) {
-                // Too many file entries to return (relies on $limit)
-                throw new Exception\NotAcceptableException($e->getMessage());
-            } else {
-                throw $e;
-            }
-        }
+        $call = 'revisions/' . $this->root . '/' . $this->encodePath($file);
+        $params = array(
+            'rev_limit' => ($limit < 1) ? 1 : (($limit > 1000) ? 1000 : (int) $limit),
+        );
+        $response = $this->fetch('GET', self::API_URL, $call, $params);
+        return $response;
     }
     
     /**
@@ -359,19 +310,10 @@ class API
      */
     public function restore($file, $revision)
     {
-        try {
-            $call = 'restore/' . $this->root . '/' . $this->encodePath($file);
-            $params = array('rev' => $revision);
-            $response = $this->fetch('POST', self::API_URL, $call, $params);
-            return $response;
-        } catch (Exception $e) {
-            if ($e->getCode() == 404) {
-                // Unable to find the revision at that path
-                throw new Exception\NotFoundException($e->getMessage());
-            } else {
-                throw $e;
-            }
-        }
+        $call = 'restore/' . $this->root . '/' . $this->encodePath($file);
+        $params = array('rev' => $revision);
+        $response = $this->fetch('POST', self::API_URL, $call, $params);
+        return $response;
     }
     
     /**
@@ -446,27 +388,14 @@ class API
         
         $call = 'thumbnails/' . $this->root . '/' . $this->encodePath($file);
         $params = array('format' => $format, 'size' => $size);
+        $response = $this->fetch('GET', self::CONTENT_URL, $call, $params);
         
-        try {
-            $response = $this->fetch('GET', self::CONTENT_URL, $call, $params);
-            return array(
-                    'name' => basename($file),
-                    'mime' => $this->getMimeType($response['body']),
-                    'meta' => json_decode($response['headers']['x-dropbox-metadata']),
-                    'data' => $response['body'],
-            );
-        } catch (Exception $e) {
-            $code = $e->getCode();
-            if ($code == 404) {
-                // The file path wasn't found or the file extension doesn't allow conversion to a thumbnail
-                throw new Exception\NotFoundException($e->getMessage());
-            } elseif ($code == 415) {
-                // The image is invalid and cannot be converted to a thumbnail
-                throw new Exception\UnsupportedMediaTypeException($e->getMessage());
-            } else {
-                throw $e;
-            }
-        }
+        return array(
+            'name' => basename($file),
+            'mime' => $this->getMimeType($response['body']),
+            'meta' => json_decode($response['headers']['x-dropbox-metadata']),
+            'data' => $response['body'],
+        );
     }
     
     /**

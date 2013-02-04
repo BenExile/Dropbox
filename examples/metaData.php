@@ -12,8 +12,8 @@ require_once('bootstrap.php');
 // Set the file path
 $path = '';
 
-// Use a hash to test the NotModifiedException
-$hash = 'c682b7f13d409b004e0c2fd959e6d69d';
+// Note: Use a hash to test the NotModifiedException
+$hash = null;
 
 // Limit the entries returned
 $limit = 10000;
