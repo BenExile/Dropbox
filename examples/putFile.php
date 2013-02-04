@@ -14,11 +14,14 @@ $tmp = tempnam('/tmp', 'dropbox');
 $data = 'This file was uploaded using the Dropbox API!';
 file_put_contents($tmp, $data);
 
-// Upload the file with an alternative filename
-$put = $dropbox->putFile($tmp, 'api_upload_test.txt');
+try {
+    // Upload the file with an alternative filename
+    $put = $dropbox->putFile($tmp, 'api_upload_test.txt');
+    var_dump($put);
+} catch (\Dropbox\Exception\BadRequestException $e) {
+    // The file extension is ignored by Dropbox (e.g. thumbs.db or .ds_store)
+    echo 'Invalid file extension';
+}
 
 // Unlink the temporary file
 unlink($tmp);
-
-// Dump the output
-var_dump($put);

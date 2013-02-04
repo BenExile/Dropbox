@@ -10,11 +10,23 @@
 require_once('bootstrap.php');
 
 // Set the file path
-// You will need to modify $path or run putFile.php first
-$path = 'api_upload_test.txt';
+$path = '';
 
-// Get the metadata for the file/folder specified in $path
-$metaData = $dropbox->metaData($path);
+// Use a hash to test the NotModifiedException
+$hash = 'c682b7f13d409b004e0c2fd959e6d69d';
 
-// Dump the output
-var_dump($metaData);
+// Limit the entries returned
+$limit = 10000;
+
+try {
+    // Get the metadata for the file/folder specified in $path
+    $metaData = $dropbox->metaData($path, null, $limit, $hash);
+    var_dump($metaData);
+} catch (\Dropbox\Exception\NotModifiedException $e) {
+    // The contents were not changed since $hash was issued
+    // As you *should* be caching metadata responses, you can revert to using cached data
+    echo 'The folder contents have not been modified';
+} catch (\Dropbox\Exception\NotAcceptableException $e) {
+    // The number of entries exceeds $limit
+    echo 'Too many entries to return';
+}

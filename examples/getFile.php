@@ -20,8 +20,11 @@ $path = 'api_upload_test.txt';
 // directly to disk rather than storing file data in memory
 $outFile = false;
 
-// Download the file
-$file = $dropbox->getFile($path, $outFile);
-
-// Dump the output
-var_dump($file);
+try {
+    // Download the file
+    $file = $dropbox->getFile($path, $outFile);
+    var_dump($file);
+} catch (\Dropbox\Exception\NotFoundException $e) {
+    // The file wasn't found at the specified path/revision
+    echo 'The file was not found at the specified path/revision';
+}

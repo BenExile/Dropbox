@@ -113,6 +113,13 @@ class Curl extends ConsumerAbstract
         // Set the last response
         $this->lastResponse = $response;
         
+        // The API doesn't return an error message for the 304 status code...
+        // 304's are only returned when the path supplied during metadata calls has not been modified
+        if ($response['code'] == 304) {
+            $response['body'] = new \stdClass;
+            $response['body']->error = 'The folder contents have not changed';
+        }
+        
         // Check if an error occurred and throw an Exception
         if (!empty($response['body']->error)) {
         	// Dropbox returns error messages inconsistently...
