@@ -60,7 +60,7 @@ abstract class ConsumerAbstract
     * @link http://tools.ietf.org/html/rfc5849#section-2.1
     * @return void
     */
-    private function getRequestToken()
+    public function getRequestToken()
     {
         // Nullify any request token we already have
         $this->storage->set(null, 'request_token');
