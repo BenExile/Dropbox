@@ -177,11 +177,11 @@ abstract class ConsumerAbstract
         // URL encode each parameter to RFC3986 for use in the base string
         $encoded = array();
         foreach($params as $param => $value) {
-            if ($value !== null) {
+            if ($value !== null && ) {
                 // If the value is a file upload (prefixed with @), replace it with
                 // the destination filename, the file path will be sent in POSTFIELDS
                 if (isset($value[0]) && $value[0] === '@') $value = $params['filename'];
-                $encoded[] = $this->encode($param) . '=' . $this->encode($value);
+                if (!is_array($value)) $encoded[] = $this->encode($param) . '=' . $this->encode($value);
             } else {
                 unset($params[$param]);
             }
