@@ -37,7 +37,16 @@ abstract class ConsumerAbstract
      * @var null|resource
      */
     protected $inFile = null;
-    
+
+    protected $consumerKey;
+
+    protected $consumerSecret;
+
+    protected $callback = null;
+
+    /** @var \Dropbox\OAuth\Storage\StorageInterface */
+    protected $storage = null;
+
     /**
      * Authenticate using 3-legged OAuth flow, firstly
      * checking we don't already have tokens to use
@@ -85,7 +94,7 @@ abstract class ConsumerAbstract
             exit;
         }
     }
-    
+
     /**
     * Build the user authorisation URL
     * @return string
@@ -176,8 +185,13 @@ abstract class ConsumerAbstract
     
         // URL encode each parameter to RFC3986 for use in the base string
         $encoded = array();
+        $putData = null;
         foreach($params as $param => $value) {
-            if ($value !== null) {
+            // Special param for PUT method
+            if ('putdata' == $param) {
+                $putData = $value;
+                unset($params[$param]);
+            } elseif ($value !== null) {
                 // If the value is a file upload (prefixed with @), replace it with
                 // the destination filename, the file path will be sent in POSTFIELDS
                 if (isset($value[0]) && $value[0] === '@') $value = $params['filename'];
@@ -202,10 +216,11 @@ abstract class ConsumerAbstract
         
         // Build the signed request URL
         $query = '?' . http_build_query($params, '', '&');
-        
+
         return array(
             'url' => $url . $call . $query,
             'postfields' => $params,
+            'putdata' => $putData,
         );
     }
     
@@ -306,4 +321,8 @@ abstract class ConsumerAbstract
     {
         return str_replace('%7E', '~', rawurlencode($value));
     }
+
+    abstract public function fetch($method, $url, $call, array $additional = array());
+
+    abstract public function getlastResponse();
 }
