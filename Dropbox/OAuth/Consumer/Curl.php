@@ -75,6 +75,14 @@ class Curl extends ConsumerAbstract
         // Get the signed request URL
         $request = $this->getSignedRequest($method, $url, $call, $additional);
 
+        if (function_exists('curl_file_create')) {
+            foreach ($request['postfields'] as $name => &$value) {
+                if (preg_match('/^@(?<file>.+);filename=(?<filename>.+)$/', $value, $matches)) {
+                    $value = curl_file_create($matches['file'], 'application/octet-stream', $matches['filename']);
+                }
+            }
+        }
+
         // Initialise and execute a cURL request
         $handle = curl_init($request['url']);
         

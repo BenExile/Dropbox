@@ -194,13 +194,15 @@ abstract class ConsumerAbstract
             } elseif ($value !== null) {
                 // If the value is a file upload (prefixed with @), replace it with
                 // the destination filename, the file path will be sent in POSTFIELDS
-                if (isset($value[0]) && $value[0] === '@') $value = $params['filename'];
+                if (preg_match('/^@(?<file>.+);filename=(?<filename>.+)$/', $value, $matches)) {
+                    $value = $matches['filename'];
+                }
                 $encoded[] = $this->encode($param) . '=' . $this->encode($value);
             } else {
                 unset($params[$param]);
             }
         }
-        
+
         // Build the first part of the string
         $base = $method . '&' . $this->encode($url . $call) . '&';
         
