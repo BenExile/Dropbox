@@ -51,6 +51,9 @@ abstract class ConsumerAbstract
             } catch(\Dropbox\Exception $e) {
                 $this->getRequestToken();
                 $this->authorise();
+            } catch(\Dropbox\BadRequestException $e) {
+                $this->getRequestToken();
+                $this->authorise();
             }
         }
     }
