@@ -44,7 +44,7 @@ class Curl extends ConsumerAbstract
      * Set properties and begin authentication
      * @param string $key
      * @param string $secret
-     * @param \Dropbox\OAuth\Consumer\StorageInterface $storage
+     * @param \Dropbox\OAuth\Storage\StorageInterface $storage
      * @param string $callback
      */
     public function __construct($key, $secret, StorageInterface $storage, $callback = null)
@@ -75,13 +75,29 @@ class Curl extends ConsumerAbstract
         // Get the signed request URL
         $request = $this->getSignedRequest($method, $url, $call, $additional);
 
+        if (function_exists('curl_file_create')) {
+            foreach ($request['postfields'] as $name => &$value) {
+                if (preg_match('/^@(?<file>.+);filename=(?<filename>.+)$/', $value, $matches)) {
+                    $value = curl_file_create($matches['file'], 'application/octet-stream', $matches['filename']);
+                }
+            }
+        }
+
         // Initialise and execute a cURL request
         $handle = curl_init($request['url']);
         
         // Get the default options array
         $options = $this->defaultOptions;
-        $options[CURLOPT_CAINFO] = dirname(__FILE__) . '/ca-bundle.pem';
-        
+        $headers = isset($options[CURLOPT_HTTPHEADER]) ? $options[CURLOPT_HTTPHEADER] : array();
+        $options[CURLOPT_CAINFO] = dirname(__FILE__) . '/certs/trusted-certs.crt';
+        $options[CURLOPT_CAPATH] = dirname(__FILE__) . '/certs';
+
+        $options[CURLOPT_SSL_VERIFYPEER] = true;   // Enforce certificate validation
+        $options[CURLOPT_SSL_VERIFYHOST] = 2;      // Enforce hostname validation
+
+        // Force the use of TLS (SSL v2 and v3 are not secure).
+        $options[CURLOPT_SSLVERSION] = defined('CURL_SSLVERSION_TLSv1') ? CURL_SSLVERSION_TLSv1 : 1;
+
         if ($method == 'GET' && $this->outFile) { // GET
             $options[CURLOPT_RETURNTRANSFER] = false;
             $options[CURLOPT_HEADER] = false;
@@ -98,8 +114,26 @@ class Curl extends ConsumerAbstract
             $options[CURLOPT_INFILESIZE] = strlen(stream_get_contents($this->inFile));
             fseek($this->inFile, 0);
             $this->inFile = null;
+        } elseif ($method == 'PUT' && $request['putdata']) {
+            $options[CURLOPT_RETURNTRANSFER] = true;
+            $options[CURLOPT_CUSTOMREQUEST] = "PUT";
+            $options[CURLOPT_POSTFIELDS] = $request['putdata'];
+            $headers[] = "Content-Type: application/octet-stream";
+            $headers[] = "User-Agent: DropboxClient/1.0 Dropbox-PHP-SDK";
         }
-        
+
+        // Limit vulnerability surface area.  Supported in cURL 7.19.4+
+        if (defined('CURLOPT_PROTOCOLS')) {
+            $options[CURLOPT_PROTOCOLS] = CURLPROTO_HTTPS;
+        }
+        if (defined('CURLOPT_REDIR_PROTOCOLS')) {
+            $options[CURLOPT_REDIR_PROTOCOLS] = CURLPROTO_HTTPS;
+        }
+
+        if (count($headers)) {
+            $options[CURLOPT_HTTPHEADER] = $headers;
+        }
+
         // Set the cURL options at once
         curl_setopt_array($handle, $options);
         
@@ -182,8 +216,8 @@ class Curl extends ConsumerAbstract
         $first = array_shift($lines);
         $pattern = '#^HTTP/1.1 ([0-9]{3})#';
         preg_match($pattern, $first, $matches);
-        $code = $matches[1];
-        
+        $code = (int)$matches[1];
+
         // Parse the remaining headers into an associative array
         $headers = array();
         foreach ($lines as $line) {

@@ -25,7 +25,7 @@ class PDO extends Session
     
     /**
      * Forward-declare PDO object
-     * @var null|PDO
+     * @var null|\PDO
      */
     protected $pdo = null;
     
@@ -69,12 +69,23 @@ class PDO extends Session
         $dsn = 'mysql:host=' . $host . ';port=' . $port . ';dbname=' . $db;
         $this->pdo = new \PDO($dsn, $user, $pass, $this->options);
     }
-    
+
+    /**
+     * Use custom database connection
+     * @param \PDO $pdo
+     * @return void
+     */
+    public function setConnection(\PDO $pdo)
+    {
+        $this->pdo = $pdo;
+    }
+
     /**
      * Set the table to store OAuth tokens in
      * If the table does not exist, the get() method will attempt to create it when it is called.
      * @todo Check for valid table name and quote it (see below)
      * @link http://dev.mysql.com/doc/refman/5.0/en/identifiers.html
+     * @param string $table
      * @return void
      */
     public function setTable($table)
@@ -110,8 +121,7 @@ class PDO extends Session
                 }
             } catch (\PDOException $e) {
                 // Fetch error information from the statement handle
-                $errorInfo = $stmt->errorInfo();
-
+                $errorInfo = $this->pdo->errorInfo();
                 // Handle the PDOException based on the error code
                 switch ($errorInfo[1]) {
                     case 1146: // Table does not exist
@@ -135,20 +145,20 @@ class PDO extends Session
      */
     public function set($token, $type)
     {
-        if ($type != 'request_token' && $type != 'access_token') {
-            $message = "Expected a type of either 'request_token' or 'access_token', got '$type'";
-            throw new \Dropbox\Exception($message);
-        } elseif ($type == 'request_token') {
-            parent::set($token, $type);
-        } else {
-            $query = 'INSERT INTO ' . $this->table . ' (userID, token) VALUES (?, ?) ON DUPLICATE KEY UPDATE token = ?';
-            $stmt = $this->pdo->prepare($query);
-            $token = $this->encrypt($token);
-            $stmt->execute(array($this->userID, $token, $token));
-            $_SESSION[$this->namespace][$this->userID][$type] = $token;
+        if ($type == 'access_token') {
+            $this->insertToken($token);
         }
+        parent::set($token, $type);
     }
-    
+
+    protected function insertToken($token)
+    {
+        $query = 'INSERT INTO ' . $this->table . ' (userID, token) VALUES (?, ?) ON DUPLICATE KEY UPDATE token = ?';
+        $stmt = $this->pdo->prepare($query);
+        $token = $this->encrypt($token);
+        $stmt->execute(array($this->userID, $token, $token));
+    }
+
     /**
      * Delete access token for the current user ID from the database
      * @todo Add error checking

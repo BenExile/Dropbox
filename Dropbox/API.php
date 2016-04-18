@@ -18,7 +18,7 @@ class API
     
     /**
      * OAuth consumer object
-     * @var null|OAuth\Consumer 
+     * @var null|OAuth\Consumer\ConsumerAbstract
      */
     private $OAuth;
     
@@ -142,70 +142,300 @@ class API
      * @param string|bool $filename The destination filename of the uploaded file
      * @param string $path Path to upload the file to, relative to root
      * @param boolean $overwrite Should the file be overwritten? (Default: true)
-     * @return stdClass
+     * @return object
      */
-    public function chunkedUpload($file, $filename = false, $path = '', $overwrite = true, $offset = 0, $uploadID = null)
+    public function chunkedUpload($file, $filename = false, $path = '', $overwrite = true)
     {
-        if (file_exists($file)) {
-            if ($handle = @fopen($file, 'r')) {
-            	// Seek to the correct position on the file pointer
-			    fseek($handle, $offset);
+        if (!file_exists($file)) {
+            throw new Exception('Local file ' . $file . ' does not exist');
+        }
+        if (!$handle = @fopen($file, 'r')) {
+            throw new Exception('Could not open ' . $file . ' for reading');
+        }
 
-                // Read from the file handle until EOF, uploading each chunk
-                while ($data = fread($handle, $this->chunkSize)) {
-                    // Open a temporary file handle and write a chunk of data to it
-                    $chunkHandle = fopen('php://temp', 'rw');
-                    fwrite($chunkHandle, $data);
-                    
-                    // Set the file, request parameters and send the request
-                    $this->OAuth->setInFile($chunkHandle);
-                    $params = array('upload_id' => $uploadID, 'offset' => $offset);
-                    
-                    try {
-                    	// Attempt to upload the current chunk
-                    	$response = $this->fetch('PUT', self::CONTENT_URL, 'chunked_upload', $params);
-                    } catch (Exception $e) {
-                    	$response = $this->OAuth->getLastResponse();
-                    	if ($response['code'] == 400) {
-                    		// Incorrect offset supplied, return expected offset and upload ID
-                    		$uploadID = $response['body']->upload_id;
-                    		$offset = $response['body']->offset;
-                    		return array('uploadID' => $uploadID, 'offset' => $offset);
-                    	} else {
-                    		// Re-throw the caught Exception
-                    		throw $e;
-                    	}
-                    }
-                                     
-                    // On subsequent chunks, use the upload ID returned by the previous request
-                    if (isset($response['body']->upload_id)) {
-                        $uploadID = $response['body']->upload_id;
-                    }
-                    
-                    // Set the data offset
-                    if (isset($response['body']->offset)) {
-                        $offset = $response['body']->offset;
-                    }
+        $data = $this->readFully($handle, $this->chunkSize);
+        $len = strlen($data);
 
-                    // Close the file handle for this chunk
-                    fclose($chunkHandle);
+        $client = $this;
+        $uploadId = $this->runWithRetry(3, function() use ($data, $client) {
+            return $client->chunkedUploadStart($data);
+        });
+
+        $byteOffset = $len;
+
+        while (!feof($handle)) {
+            $data = $this->readFully($handle, $this->chunkSize);
+            $len = strlen($data);
+
+            while (true) {
+                $r = $this->runWithRetry(3,
+                    function() use ($client, $uploadId, $byteOffset, $data) {
+                        return $client->chunkedUploadContinue($uploadId, $byteOffset, $data);
+                    });
+
+                if ($r === true) {  // Chunk got uploaded!
+                    $byteOffset += $len;
+                    break;
+                }
+                if ($r === false) {  // Server didn't recognize our upload ID
+                    // This is very unlikely since we're uploading all the chunks in sequence.
+                    throw new Exception\BadResponseException("Server forgot our uploadId");
                 }
 
-                // Complete the chunked upload
-                $filename = (is_string($filename)) ? $filename : basename($file);
-                $call = 'commit_chunked_upload/' . $this->root . '/' . $this->encodePath(rtrim($path, '/') . '/' . $filename);
-                $params = array('overwrite' => (int) $overwrite, 'upload_id' => $uploadID);
-                $response = $this->fetch('POST', self::CONTENT_URL, $call, $params);
-                return $response;
-            } else {
-                throw new Exception('Could not open ' . $file . ' for reading');
+                // Otherwise, the server is at a different byte offset from us.
+                $serverByteOffset = $r;
+                // An earlier byte offset means the server has lost data we sent earlier.
+                if ($serverByteOffset < $byteOffset) throw new Exception\BadResponseException(
+                    "Server is at an ealier byte offset: us=$byteOffset, server=$serverByteOffset");
+                $diff = $serverByteOffset - $byteOffset;
+                // If the server is past where we think it could possibly be, something went wrong.
+                if ($diff > $len) throw new Exception\BadResponseException(
+                    "Server is more than a chunk ahead: us=$byteOffset, server=$serverByteOffset");
+                // The normal case is that the server is a bit further along than us because of a
+                // partially-uploaded chunk.  Finish it off.
+                $byteOffset += $diff;
+                if ($diff === $len) break;  // If the server is at the end, we're done.
+                $data = substr($data, $diff);
             }
         }
-        
-        // Throw an Exception if the file does not exist
-        throw new Exception('Local file ' . $file . ' does not exist');
+
+        $metadata = $this->runWithRetry(3,
+            function() use ($client, $uploadId, $file, $filename, $path, $overwrite) {
+                $filename = (is_string($filename)) ? $filename : basename($file);
+                $filePath = rtrim($path, '/') . '/' . $filename;
+
+                return $client->chunkedUploadFinish($uploadId, $filePath, $overwrite);
+            });
+        return $metadata;
     }
-    
+
+    /**
+     * Sometimes fread() returns less than the request number of bytes (for example, when reading
+     * from network streams).  This function repeatedly calls fread until the requested number of
+     * bytes have been read or we've reached EOF.
+     *
+     * @param resource $inStream
+     * @param int $numBytes
+     * @return string
+     */
+    private function readFully($inStream, $numBytes)
+    {
+        $full = '';
+        $bytesRemaining = $numBytes;
+        while (!feof($inStream) && $bytesRemaining > 0) {
+            $part = fread($inStream, $bytesRemaining);
+            if ($part === false) throw new Exception("Error reading from \$inStream.");
+            $full .= $part;
+            $bytesRemaining -= strlen($part);
+        }
+        return $full;
+    }
+
+    private function runWithRetry($maxRetries, $action)
+    {
+        $retryDelay = 1;
+        $numRetries = 0;
+        while (true) {
+            try {
+                return $action();
+            } catch (Exception $ex) {
+                $savedEx = $ex;
+            }
+
+            // We maxed out our retries.  Propagate the last exception we got.
+            if ($numRetries >= $maxRetries) throw $savedEx;
+
+            $numRetries++;
+            sleep($retryDelay);
+            $retryDelay *= 2;  // Exponential back-off.
+        }
+        throw new \RuntimeException("unreachable");
+    }
+
+    /**
+     * Start a new chunked upload session and upload the first chunk of data.
+     *
+     * @param string $data
+     *     The data to start off the chunked upload session.
+     *
+     * @return array
+     *     A pair of <code>(string $uploadId, int $byteOffset)</code>.  <code>$uploadId</code>
+     *     is a unique identifier for this chunked upload session.  You pass this in to
+     *     {@link chunkedUploadContinue} and {@link chuunkedUploadFinish}.  <code>$byteOffset</code>
+     *     is the number of bytes that were successfully uploaded.
+     */
+    private function chunkedUploadStart($data)
+    {
+        $response = $this->fetch('PUT', self::CONTENT_URL, 'chunked_upload', array(
+            'putdata' => $data,
+        ));
+
+        if ($response['code'] === 404) {
+            throw new Exception\BadResponseException("Got a 404, but we didn't send up an 'upload_id'");
+        }
+
+        $correction = self::_chunkedUploadCheckForOffsetCorrection($response);
+        if ($correction !== null) throw new Exception\BadResponseException(
+            "Got an offset-correcting 400 response, but we didn't send an offset");
+
+        if ($response['code'] !== 200) throw $this->unexpectedStatus($response);
+
+        list($uploadId, $byteOffset) = self::_chunkedUploadParse200Response($response['body']);
+        $len = strlen($data);
+        if ($byteOffset !== $len) throw new Exception\BadResponseException(
+            "We sent $len bytes, but server returned an offset of $byteOffset");
+
+        return $uploadId;
+    }
+
+    /**
+     * Append another chunk data to a previously-started chunked upload session.
+     *
+     * @param string $uploadId
+     *     The unique identifier for the chunked upload session.  This is obtained via
+     *     {@link chunkedUploadStart}.
+     *
+     * @param int $byteOffset
+     *     The number of bytes you think you've already uploaded to the given chunked upload
+     *     session.  The server will append the new chunk of data after that point.
+     *
+     * @param string $data
+     *     The data to append to the existing chunked upload session.
+     *
+     * @return int|bool
+     *     If <code>false</code>, it means the server didn't know about the given
+     *     <code>$uploadId</code>.  This may be because the chunked upload session has expired
+     *     (they last around 24 hours).
+     *     If <code>true</code>, the chunk was successfully uploaded.  If an integer, it means
+     *     you and the server don't agree on the current <code>$byteOffset</code>.  The returned
+     *     integer is the server's internal byte offset for the chunked upload session.  You need
+     *     to adjust your input to match.
+     */
+    function chunkedUploadContinue($uploadId, $byteOffset, $data)
+    {
+        $response = $this->fetch('PUT', self::CONTENT_URL, 'chunked_upload', array(
+            'upload_id' => $uploadId,
+            'offset' => $byteOffset,
+            'putdata' => $data,
+        ));
+
+        if ($response['code'] === 404) {
+            // The server doesn't know our upload ID.  Maybe it expired?
+            return false;
+        }
+
+        $correction = self::_chunkedUploadCheckForOffsetCorrection($response);
+        if ($correction !== null) {
+            list($correctedUploadId, $correctedByteOffset) = $correction;
+            if ($correctedUploadId !== $uploadId) throw new Exception\BadResponseException(
+                "Corrective 400 upload_id mismatch: us=" .
+                var_export($uploadId, true) . " server=" . var_export($correctedUploadId, true));
+            if ($correctedByteOffset === $byteOffset) throw new Exception\BadResponseException(
+                "Corrective 400 offset is the same as ours: $byteOffset");
+            return $correctedByteOffset;
+        }
+
+        if ($response['code'] !== 200) throw $this->unexpectedStatus($response);
+        list($retUploadId, $retByteOffset) = self::_chunkedUploadParse200Response($response['body']);
+
+        $nextByteOffset = $byteOffset + strlen($data);
+        if ($uploadId !== $retUploadId) throw new Exception\BadResponseException(
+            "upload_id mismatch: us=" . var_export($uploadId, true) . ", server=" . var_export($uploadId, true));
+        if ($nextByteOffset !== $retByteOffset) throw new Exception\BadResponseException(
+            "next-offset mismatch: us=$nextByteOffset, server=$retByteOffset");
+
+        return true;
+    }
+
+    /**
+     * @param string $body
+     * @return array
+     */
+    private static function _chunkedUploadParse200Response($body)
+    {
+        if (!isset($body->upload_id)) {
+            throw new Exception\BadResponseException("missing field \"upload_id\" in " . var_export($body, true));
+        }
+        $uploadId = $body->upload_id;
+
+        if (!isset($body->offset)) {
+            throw new Exception\BadResponseException("missing field \"offset\" in " . var_export($body, true));
+        }
+        $byteOffset = $body->offset;
+
+        return array($uploadId, $byteOffset);
+    }
+
+    /**
+     * @param object $response
+     * @return array|null
+     */
+    private static function _chunkedUploadCheckForOffsetCorrection($response)
+    {
+        if ($response['code'] !== 400) return null;
+        if ($response['body'] === null) return null;
+        if (!isset($response['body']->upload_id) || !isset($response['body']->offset)) return null;
+        $uploadId = $response['body']->upload_id;
+        $byteOffset = $response['body']->offset;
+        return array($uploadId, $byteOffset);
+    }
+
+    /**
+     * Creates a file on Dropbox using the accumulated contents of the given chunked upload session.
+     *
+     * See <a href="https://www.dropbox.com/developers/core/docs#commit-chunked-upload">/commit_chunked_upload</a>.
+     *
+     * @param string $uploadId
+     *     The unique identifier for the chunked upload session.  This is obtained via
+     *     {@link chunkedUploadStart}.
+     *
+     * @param string $path
+     *    The Dropbox path to save the file to ($path).
+     *
+     * @param int $overwrite
+     *    What to do if there's already a file at the given path.
+     *
+     * @return array|null
+     *    If <code>null</code>, it means the Dropbox server wasn't aware of the
+     *    <code>$uploadId</code> you gave it.
+     *    Otherwise, you get back the
+     *    <a href="https://www.dropbox.com/developers/core/docs#metadata-details">metadata object</a>
+     *    for the newly-created file.
+     *
+     * @throws Exception
+     */
+    private function chunkedUploadFinish($uploadId, $path, $overwrite)
+    {
+        $call = 'commit_chunked_upload/' . $this->root . '/' . $this->encodePath($path);
+        $response = $this->fetch('POST', self::CONTENT_URL, $call, array(
+            'upload_id' => $uploadId,
+            'overwrite' => (int) $overwrite,
+        ));
+
+        if ($response['code'] === 404) return null;
+        if ($response['code'] !== 200) throw $this->unexpectedStatus($response);
+
+        return $response;
+    }
+
+    private function unexpectedStatus($httpResponse)
+    {
+        $sc = $httpResponse['code'];
+
+        $message = "HTTP status $sc";
+        if (is_string($httpResponse['body'])) {
+            // TODO: Maybe only include the first ~200 chars of the body?
+            $message .= "\n".$httpResponse['body'];
+        }
+
+        if ($sc === 400) return new Exception\BadRequestException($message);
+        if ($sc === 401) return new Exception("InvalidAccessToken $message");
+        if ($sc === 500 || $sc === 502) return new Exception("ServerError $message");
+        if ($sc === 503) return new Exception("RetryLater $message");
+
+        return new Exception\BadResponseException("Unexpected $message", $sc);
+    }
+
     /**
      * Downloads a file
      * Returns the base filename, raw file data and mime type returned by Fileinfo
@@ -231,7 +461,7 @@ class API
             }
         }
         
-        $file = $this->encodePath($file);        
+        $file = $this->encodePath($file);
         $call = 'files/' . $this->root . '/' . $file;
         $params = array('rev' => $revision);
         $response = $this->fetch('GET', self::CONTENT_URL, $call, $params);
@@ -288,8 +518,8 @@ class API
     
     /**
      * Obtains metadata for the previous revisions of a file
-     * @param string Path to the file, relative to root
-     * @param integer Number of revisions to return (1-1000)
+     * @param string $file Path to the file, relative to root
+     * @param integer $limit Number of revisions to return (1-1000)
      * @return array
      */
     public function revisions($file, $limit = 10)
@@ -402,7 +632,7 @@ class API
      * Creates and returns a copy_ref to a file
      * This reference string can be used to copy that file to another user's
      * Dropbox by passing it in as the from_copy_ref parameter on /fileops/copy
-     * @param $path File for which ref should be created, relative to root
+     * @param string $path File for which ref should be created, relative to root
      * @return array
      */
     public function copyRef($path)
@@ -439,7 +669,7 @@ class API
     
     /**
      * Creates a folder
-     * @param string New folder to create relative to root
+     * @param string $path New folder to create relative to root
      * @return object stdClass
      */
     public function create($path)
