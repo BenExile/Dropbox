@@ -89,7 +89,8 @@ class Curl extends ConsumerAbstract
         // Get the default options array
         $options = $this->defaultOptions;
         $headers = isset($options[CURLOPT_HTTPHEADER]) ? $options[CURLOPT_HTTPHEADER] : array();
-        $options[CURLOPT_CAINFO] = dirname(__FILE__) . '/ca-bundle.pem';
+        $options[CURLOPT_CAINFO] = dirname(__FILE__) . '/certs/trusted-certs.crt';
+        $options[CURLOPT_CAPATH] = dirname(__FILE__) . '/certs';
 
         $options[CURLOPT_SSL_VERIFYPEER] = true;   // Enforce certificate validation
         $options[CURLOPT_SSL_VERIFYHOST] = 2;      // Enforce hostname validation
